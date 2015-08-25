@@ -29,7 +29,6 @@ $(document).ready(function(){
   Markit.QuoteService.prototype.displayStock = function(stockJson) {
       console.log("displayStock");
 
-      // == container for stock data
       this.$el = $("<div class='stock'></div>");
 
       var htmlString = $("<div>");
@@ -54,6 +53,7 @@ $(document).ready(function(){
       console.error(stockJson);
   };
 
+
   new Markit.QuoteService("AAPL", function(stockJson) {
     console.log("Markit.QuoteService");
 
@@ -64,17 +64,10 @@ $(document).ready(function(){
       }
 
       //If all goes well, your quote will be here.
-      console.log(stockJson);
-      console.log(stockJson.Name);
+      // console.log(stockJson);
+      // console.log(stockJson.Name);
       this.displayStock(stockJson);
 
-      //Now proceed to do something with the data.
-      $("h1").first().text(stockJson.Name);
-
-      /**
-      * Need help? Visit the API documentation at:
-      * http://dev.markitondemand.com
-      */
   });
 
 

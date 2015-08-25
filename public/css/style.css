@@ -1,0 +1,162 @@
+/*
+* This is a manifest file...
+*
+*= require_tree .
+*= require_self
+*/
+
+/* ======= general ======= */
+body {
+  font-family:"Ariel", sans-serif;
+}
+
+.logo {
+  width: 100%;
+  height: auto;
+}
+
+/* ======= rows & columns ======= */
+.row, .column {
+  box-sizing: border-box;
+}
+
+.row {
+  overflow: auto;
+  border: 1px solid rebeccapurple;
+}
+
+.column {
+  position: relative;
+  float: left;
+  text-align: center;
+  border: 1px solid gray;
+}
+
+.column:after {
+  /*content: "\00a0";*/
+}
+
+/* ======= columns ======= */
+.column-1 { width: 8.333%; }
+.column-2 { width: 16.66%; }
+.column-3 { width: 25%; }
+.column-4 { width: 33.33%; }
+.column-5 { width: 41.66%; }
+.column-6 { width: 50%; }
+.column-7 { width: 58.33%; }
+.column-8 { width: 66.66%; }
+.column-9 { width: 75%; }
+.column-10 { width: 83.33%; }
+.column-11 { width: 91.66%; }
+.column-12 { width: 100%; }
+
+/* ======= rows ======= */
+.header_row > .column {
+  height: auto;
+}
+
+.navbar1_row > .column {
+  height: 40px;
+  overflow: visible;
+  /*line-height: 40px;*/
+}
+
+.content_row > .column {
+  height: 300px;
+  /*line-height: 300px;*/
+}
+
+.info_row > .column {
+  height: 40px;
+  /*line-height: 40px;*/
+}
+
+.footer_row > .column {
+  height: 100px;
+  /*line-height: 100px;*/
+}
+
+.navbar1 {
+  position: relative;
+  z-index: 2;
+}
+
+/* ======= misc ======= */
+.gutter {
+  background-color: peachpuff;
+  margin: 0 3%;
+}
+
+.form {
+  line-height: 40px;
+}
+
+/* ======= menus ======= */
+#main_nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#main_nav ul {
+	list-style: none;
+	position: relative;
+	float: left;
+	margin:0;
+	padding:0;
+  z-index: 3;
+}
+
+#main_nav ul a {
+	display:block;
+	color:#333;
+	text-decoration:none;
+	font-weight:700;
+	font-size:12px;
+	line-height:32px;
+	padding:0 15px;
+	font-family: "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+#main_nav ul li {
+	position:relative;
+	float:left;
+	margin:0;
+	padding:0;
+}
+
+#main_nav ul li.current-menu-item {
+	background: #ddd;
+}
+
+#main_nav ul li:hover {
+	background: #f6f6f6;
+}
+
+#main_nav ul ul {
+	display: none;
+	position: absolute;
+	top:100%;
+	left:0;
+	background:#fff;
+	padding:0;
+}
+
+#main_nav ul ul li {
+	float:none;
+	width:200px;
+}
+
+#main_nav ul ul a {
+	line-height:120%;
+	padding:10px 15px;
+}
+
+#main_nav ul ul ul {
+	top:0;
+	left:100%;
+}
+
+#main_nav ul li:hover > ul {
+	display:block;
+}

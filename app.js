@@ -11,6 +11,7 @@ app.set("view engine", "hbs");
 // var stocksController = require("./controllers/stocks");
 
 app.get("/", function(req, res){
+  console.log("app.get");
   res.sendFile(__dirname + "/app/views/index.html");
 });
 
