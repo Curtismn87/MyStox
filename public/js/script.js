@@ -177,21 +177,17 @@ $(document).ready(function(){
 
       for (var i = 0; i < stockJson.results.length; i++) {
         var $stockLink = $("#stock" + i);
-        var $stockTicker = $stockLink.attr('value');
-        console.log("$stockLink.id: " + $stockLink.attr('id'));
-        console.log("$stockLink.val(): " + $stockLink.attr('value'));
-
         $stockLink.on("click", function(){
-          self.displayStockGraph($stockTicker);
-          // self.initHistory($stockTicker);
+          var linkValue = $(this).attr('value');
+          self.displayStockGraph(linkValue);
         })
       }
     }
 
-    StockData.prototype.displayStockGraph = function(sSymbol) {
+    StockData.prototype.displayStockGraph = function(historySymbol) {
       console.log("displayStockGraph");
 
-      var newHistory = new HistoryData(stocksArray, function(stockJson) {
+      var newHistory = new HistoryData(historySymbol, function(stockJson) {
         console.log("new HistoryData");
 
           if (!stockJson || stockJson.Message){
@@ -201,12 +197,30 @@ $(document).ready(function(){
           this.displayStockHistory(stockJson);
       });
 
-      function HistoryData(sSymbol, fCallback) {
+      function HistoryData(historySymbol, fCallback) {
         console.log("HistoryData");
-          this.symbol = sSymbol;
+          // this.symbol = sSymbol;
           // this.fCallback = fCallback;   // fCallback = error or process/display json
-          this.dataSource = "http://marketdata.websol.barchart.com/getHistory.json?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + sSymbol + "&type=daily&startDate=20140822000000";
+          console.log("historySymbol: " + historySymbol);
+          this.dataSource = "http://marketdata.websol.barchart.com/getHistory.json?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + historySymbol + "&type=daily&startDate=20140822000000";
       }
+
+      HistoryData.prototype.getHistory = function() {
+        console.log("getHistory");
+        if (this.ajaxRequest) { this.ajaxRequest.abort(); }
+        this.ajaxRequest = $.ajax({
+            data: { symbol: historySymbol },
+            type: 'GET',
+            // dataType: "json",
+            dataType: 'jsonp',
+            crossDomain: true,
+            url: this.dataSource,
+            success: this.handleSuccess,
+            error: this.handleError,
+            context: this
+        });
+      };
+      newHistory.getHistory(historySymbol);
 
       StockData.prototype.displayStockHistory = function(stockJson) {
         console.log("displayStockHistory");
@@ -221,7 +235,6 @@ $(document).ready(function(){
         // var htmlString = "<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th></tr>";
 
       }
-      newHistory.makeRequest(sSymbol);
     };
 
     StockData.prototype.handleSuccess = function(stockJson) {
