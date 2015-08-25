@@ -187,6 +187,12 @@ $(document).ready(function(){
     StockData.prototype.displayStockGraph = function(historySymbol) {
       console.log("displayStockGraph");
 
+
+      // ======= ======= ======= History ======= ======= =======
+      // ======= ======= ======= History ======= ======= =======
+      // ======= ======= ======= History ======= ======= =======
+
+
       var newHistory = new HistoryData(historySymbol, function(stockJson) {
         console.log("new HistoryData");
 
@@ -202,7 +208,7 @@ $(document).ready(function(){
           // this.symbol = sSymbol;
           // this.fCallback = fCallback;   // fCallback = error or process/display json
           console.log("historySymbol: " + historySymbol);
-          this.dataSource = "http://marketdata.websol.barchart.com/getHistory.json?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + historySymbol + "&type=daily&startDate=20140822000000";
+          this.dataSource = "http://marketdata.websol.barchart.com/getHistory.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + historySymbol + "&type=daily&startDate=20140822000000";
       }
 
       HistoryData.prototype.getHistory = function() {
@@ -221,6 +227,16 @@ $(document).ready(function(){
         });
       };
       newHistory.getHistory(historySymbol);
+
+      HistoryData.prototype.handleSuccess = function(stockJson) {
+        console.log("HistoryData.handleSuccess");
+          this.fCallback(stockJson);
+      };
+
+      HistoryData.prototype.handleError = function(stockJson) {
+        console.log("HistoryData.handleError");
+          console.error(stockJson);
+      };
 
       StockData.prototype.displayStockHistory = function(stockJson) {
         console.log("displayStockHistory");
