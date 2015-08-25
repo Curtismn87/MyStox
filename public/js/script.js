@@ -208,7 +208,7 @@ $(document).ready(function(){
           // this.symbol = sSymbol;
           // this.fCallback = fCallback;   // fCallback = error or process/display json
           console.log("historySymbol: " + historySymbol);
-          this.dataSource = "http://marketdata.websol.barchart.com/getHistory.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + historySymbol + "&type=daily&startDate=20140822000000";
+          this.dataSource = "http://marketdata.websol.barchart.com/getHistory.json?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + historySymbol + "&type=daily&startDate=20140822000000";
       }
 
       HistoryData.prototype.getHistory = function() {
@@ -217,16 +217,22 @@ $(document).ready(function(){
         this.ajaxRequest = $.ajax({
             data: { symbol: historySymbol },
             type: 'GET',
-            // dataType: "json",
-            dataType: 'jsonp',
+            dataType: "json",
+            // dataType: 'jsonp',
             crossDomain: true,
             url: this.dataSource,
             success: this.handleSuccess,
             error: this.handleError,
+            always: this.handleAlways,
             context: this
         });
       };
       newHistory.getHistory(historySymbol);
+
+      HistoryData.prototype.handleAlways = function(stockJson) {
+        console.log("HistoryData.handleAlways");
+          this.fCallback(stockJson);
+      };
 
       HistoryData.prototype.handleSuccess = function(stockJson) {
         console.log("HistoryData.handleSuccess");
