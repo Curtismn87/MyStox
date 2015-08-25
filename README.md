@@ -27,6 +27,7 @@ user stories
 
 
 ERD
+
 stocks
 • stockID
 • symbol
