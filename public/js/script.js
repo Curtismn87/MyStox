@@ -63,14 +63,16 @@ $(document).ready(function(){
       $(".contents").append(this.$el);
       $(".contents").css("margin-top", "100px");
       this.loginBtn = $("#loginBtn");
+
       $(this.loginBtn).on("click", function(){
         console.log("loginBtn");
+        self.displayPortfolio();
       })
   }
 
   // ======= ======= ======= menu items ======= ======= =======
-  Elements.prototype.displayStocks = function() {
-      console.log("displayStocks");
+  Elements.prototype.displayPortfolio = function() {
+      console.log("displayPortfolio");
       initNewStock(["AAPL", "GOOGL"]);
   }
 
@@ -108,10 +110,6 @@ $(document).ready(function(){
             console.error("Error: ", stockJson.Message);
             return;
         }
-        console.log("stockJson.results: " + stockJson.results);
-        console.log("stockJson.results[0]: " + stockJson.results[0]);
-        console.log("stockJson.results[0].close: " + stockJson.results[0].close);
-        console.log("stockJson.results[0].lastPrice: " + stockJson.results[0].lastPrice);
         this.displayStock(stockJson);
 
     });
@@ -128,7 +126,6 @@ $(document).ready(function(){
 
     StockData.prototype.makeRequest = function() {
       console.log("makeRequest");
-      console.log("this.dataSource: " + this.dataSource);
         if (this.ajaxRequest) { this.ajaxRequest.abort(); }
         this.ajaxRequest = $.ajax({
             data: { symbol: this.symbol },
@@ -145,46 +142,47 @@ $(document).ready(function(){
 
     StockData.prototype.displayStock = function(stockJson) {
         console.log("displayStock");
+        var self = this;
 
         var container = $(".contents");
         container.empty();
         container.css("margin-top", 0);
         this.$el = $("<div class='stock'></div>");
 
-        var htmlString = "<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th></tr>" +
-        // "<tr><td><h3>" + stockJson.Name + "</h3></td>" +
-        // "<td>" + stockJson.Symbol + "</td>" +
-        // "<td>" + stockJson.Low + "</td>" +
-        // "<td>" + stockJson.High + "</td>" +
-        // "<td>" + stockJson.LastPrice + "</td>" +
-        "<tr><td><h3>" + stockJson.results[0].name + "</h3></td>" +
-        "<td>" + stockJson.results[0].symbol + "</td>" +
-        "<td>" + stockJson.results[0].low + "</td>" +
-        "<td>" + stockJson.results[0].high + "</td>" +
-        "<td>" + stockJson.results[0].lastPrice + "</td></tr>" +
-        "<tr><td><h3>" + stockJson.results[1].name + "</h3></td>" +
-        "<td>" + stockJson.results[1].symbol + "</td>" +
-        "<td>" + stockJson.results[1].low + "</td>" +
-        "<td>" + stockJson.results[1].high + "</td>" +
-        "<td>" + stockJson.results[1].lastPrice + "</td>" +
-        "</tr></table>";
+        var stockCount = stockJson.results.length;
+        var htmlString = "<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th></tr>";
+
+        for (var i = 0; i < stockJson.results.length; i++) {
+          nextResult = stockJson.results[i];
+          htmlString = htmlString + "<tr><td><h3>" +
+          "<a href='#' id='stock" + i + "'>" + nextResult.name + "</h3></a></td>" +
+          "<td>" + nextResult.symbol + "</td>" +
+          "<td>" + nextResult.low + "</td>" +
+          "<td>" + nextResult.high + "</td>" +
+          "<td>" + nextResult.lastPrice + "</td></tr>";
+        }
+
+        htmlString = htmlString + "</table>";
         this.$el.html(htmlString);
 
-        // var htmlString = $("<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th></tr>");
-        // htmlString.append("<tr><td><h3>" + stockJson.Name + "</h3></td>");
-        // htmlString.append("<td>" + stockJson.Symbol + "</td>");
-        // htmlString.append("<td>" + stockJson.Low + "</td>");
-        // htmlString.append("<td>" + stockJson.High + "</td>");
-        // htmlString.append("<td>" + stockJson.LastPrice + "</td>");
-        // htmlString.append("</tr></table>");
-
-        // this.$el.html(htmlString);
         $(".contents").append(this.$el);
+
+        for (var i = 0; i < stockJson.results.length; i++) {
+          var $stockLink = $("#stock" + i);
+          console.log("$stockLink: " + $stockLink.attr('id'));
+
+          $stockLink.on("click", function(){
+            self.displayStockGraph();
+          })
+        }
     }
+
+    StockData.prototype.displayStockGraph = function() {
+      console.log("displayStockGraph");
+    };
 
     StockData.prototype.handleSuccess = function(stockJson) {
       console.log("handleSuccess");
-      console.log("stockJson: " + stockJson);
         this.fCallback(stockJson);
     };
 
