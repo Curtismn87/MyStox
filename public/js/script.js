@@ -73,7 +73,7 @@ $(document).ready(function(){
   // ======= ======= ======= menu items ======= ======= =======
   Elements.prototype.displayPortfolio = function() {
       console.log("displayPortfolio");
-      initNewStock(["AAPL", "GOOGL"]);
+      initPortfolio(["AAPL", "GOOGL", "HD"]);
   }
 
   Elements.prototype.displayWatchList = function() {
@@ -100,8 +100,8 @@ $(document).ready(function(){
 
 
   // ======= ======= ======= new StockData ======= ======= =======
-  function initNewStock(stocksArray) {
-      console.log("initNewStock");
+  function initPortfolio(stocksArray) {
+      console.log("initPortfolio");
 
     var newStock = new StockData(stocksArray, function(stockJson) {
       console.log("new StockData");
@@ -111,7 +111,6 @@ $(document).ready(function(){
             return;
         }
         this.displayStock(stockJson);
-
     });
 
     function StockData(sSymbolArray, fCallback) {
@@ -120,65 +119,109 @@ $(document).ready(function(){
         this.symbol = sSymbolArray[i];
         this.fCallback = fCallback;   // fCallback = error or process/display json
         // this.dataSource = "http://dev.markitondemand.com/Api/v2/Quote/jsonp";
-        this.dataSource = "http://marketdata.websol.barchart.com/getQuote.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=GOOGL,AAPL";
+
+        var symbolString = '';
+        for (var i = 0; i < sSymbolArray.length; i++) {
+          if (i == sSymbolArray.length - 1) {
+            symbolString = symbolString + sSymbolArray[i];
+          } else {
+            symbolString = symbolString + sSymbolArray[i] + ",";
+          }
+        }
+        this.dataSource = "http://marketdata.websol.barchart.com/getQuote.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=" + symbolString;
       }
     };
 
     StockData.prototype.makeRequest = function() {
       console.log("makeRequest");
-        if (this.ajaxRequest) { this.ajaxRequest.abort(); }
-        this.ajaxRequest = $.ajax({
-            data: { symbol: this.symbol },
-            type: 'GET',
-            // dataType: "json",
-            dataType: 'jsonp',
-            crossDomain: true,
-            url: this.dataSource,
-            success: this.handleSuccess,
-            error: this.handleError,
-            context: this
-        });
+      if (this.ajaxRequest) { this.ajaxRequest.abort(); }
+      this.ajaxRequest = $.ajax({
+          data: { symbol: this.symbol },
+          type: 'GET',
+          // dataType: "json",
+          dataType: 'jsonp',
+          crossDomain: true,
+          url: this.dataSource,
+          success: this.handleSuccess,
+          error: this.handleError,
+          context: this
+      });
     };
 
     StockData.prototype.displayStock = function(stockJson) {
-        console.log("displayStock");
-        var self = this;
+      console.log("displayStock");
+      var self = this;
+
+      var container = $(".contents");
+      container.empty();
+      container.css("margin-top", 0);
+      this.$el = $("<div class='stock'></div>");
+
+      var stockCount = stockJson.results.length;
+      var htmlString = "<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th></tr>";
+
+      for (var i = 0; i < stockJson.results.length; i++) {
+        nextResult = stockJson.results[i];
+        htmlString = htmlString + "<tr><td><h3>" +
+        "<a href='#' id='stock" + i + "' value='" + nextResult.symbol + "' >" + nextResult.name + "</h3></a></td>" +
+        "<td>" + nextResult.symbol + "</td>" +
+        "<td>" + nextResult.low + "</td>" +
+        "<td>" + nextResult.high + "</td>" +
+        "<td>" + nextResult.lastPrice + "</td></tr>";
+      }
+
+      htmlString = htmlString + "</table>";
+      this.$el.html(htmlString);
+
+      $(".contents").append(this.$el);
+
+      for (var i = 0; i < stockJson.results.length; i++) {
+        var $stockLink = $("#stock" + i);
+        var $stockTicker = $stockLink.attr('value');
+        console.log("$stockLink.id: " + $stockLink.attr('id'));
+        console.log("$stockLink.val(): " + $stockLink.attr('value'));
+
+        $stockLink.on("click", function(){
+          self.displayStockGraph($stockTicker);
+          // self.initHistory($stockTicker);
+        })
+      }
+    }
+
+    StockData.prototype.displayStockGraph = function(sSymbol) {
+      console.log("displayStockGraph");
+
+      var newHistory = new HistoryData(stocksArray, function(stockJson) {
+        console.log("new HistoryData");
+
+          if (!stockJson || stockJson.Message){
+              console.error("Error: ", stockJson.Message);
+              return;
+          }
+          this.displayStockHistory(stockJson);
+      });
+
+      function HistoryData(sSymbol, fCallback) {
+        console.log("HistoryData");
+          this.symbol = sSymbol;
+          // this.fCallback = fCallback;   // fCallback = error or process/display json
+          this.dataSource = "http://marketdata.websol.barchart.com/getHistory.json?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + sSymbol + "&type=daily&startDate=20140822000000";
+      }
+
+      StockData.prototype.displayStockHistory = function(stockJson) {
+        console.log("displayStockHistory");
 
         var container = $(".contents");
         container.empty();
         container.css("margin-top", 0);
         this.$el = $("<div class='stock'></div>");
 
-        var stockCount = stockJson.results.length;
-        var htmlString = "<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th></tr>";
+        var dateCount = stockJson.results.length;
+        console.log("dateCount: " + dateCount);
+        // var htmlString = "<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th></tr>";
 
-        for (var i = 0; i < stockJson.results.length; i++) {
-          nextResult = stockJson.results[i];
-          htmlString = htmlString + "<tr><td><h3>" +
-          "<a href='#' id='stock" + i + "'>" + nextResult.name + "</h3></a></td>" +
-          "<td>" + nextResult.symbol + "</td>" +
-          "<td>" + nextResult.low + "</td>" +
-          "<td>" + nextResult.high + "</td>" +
-          "<td>" + nextResult.lastPrice + "</td></tr>";
-        }
-
-        htmlString = htmlString + "</table>";
-        this.$el.html(htmlString);
-
-        $(".contents").append(this.$el);
-
-        for (var i = 0; i < stockJson.results.length; i++) {
-          var $stockLink = $("#stock" + i);
-          console.log("$stockLink: " + $stockLink.attr('id'));
-
-          $stockLink.on("click", function(){
-            self.displayStockGraph();
-          })
-        }
-    }
-
-    StockData.prototype.displayStockGraph = function() {
-      console.log("displayStockGraph");
+      }
+      newHistory.makeRequest(sSymbol);
     };
 
     StockData.prototype.handleSuccess = function(stockJson) {
@@ -190,9 +233,6 @@ $(document).ready(function(){
       console.log("handleError");
         console.error(stockJson);
     };
-
     newStock.makeRequest(stocksArray);
-
-  }
-
+  };
 });
