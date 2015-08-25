@@ -1,9 +1,8 @@
 // ======= ======= ======= DB connection.js ======= ======= =======
 var Sequelize = require("sequelize");
 var sequelize = new Sequelize("postgres:///mystox_db");
-
-var User = sequelize.import("../models/user");
-var Stock = sequelize.import("../models/stock");
+var User = sequelize.import("../app/models/user");
+var Stock = sequelize.import("../app/models/stock");
 
 Stock.hasMany(User);
 User.hasMany(Stock);
