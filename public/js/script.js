@@ -63,14 +63,16 @@ $(document).ready(function(){
       $(".contents").append(this.$el);
       $(".contents").css("margin-top", "100px");
       this.loginBtn = $("#loginBtn");
+
       $(this.loginBtn).on("click", function(){
         console.log("loginBtn");
+        self.displayPortfolio();
       })
   }
 
   // ======= ======= ======= menu items ======= ======= =======
-  Elements.prototype.displayStocks = function() {
-      console.log("displayStocks");
+  Elements.prototype.displayPortfolio = function() {
+      console.log("displayPortfolio");
       initNewStock(["AAPL", "GOOGL"]);
   }
 
@@ -117,14 +119,13 @@ $(document).ready(function(){
       for (var i = 0; i < sSymbolArray.length; i++) {
         this.symbol = sSymbolArray[i];
         this.fCallback = fCallback;   // fCallback = error or process/display json
-        this.dataSource = "http://dev.markitondemand.com/Api/v2/Quote/jsonp";
-        // this.dataSource = "http://marketdata.websol.barchart.com/getQuote.json?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=GOOGL";
+        // this.dataSource = "http://dev.markitondemand.com/Api/v2/Quote/jsonp";
+        this.dataSource = "http://marketdata.websol.barchart.com/getQuote.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=GOOGL,AAPL";
       }
     };
 
     StockData.prototype.makeRequest = function() {
       console.log("makeRequest");
-      console.log("this.dataSource: " + this.dataSource);
         if (this.ajaxRequest) { this.ajaxRequest.abort(); }
         this.ajaxRequest = $.ajax({
             data: { symbol: this.symbol },
@@ -141,23 +142,44 @@ $(document).ready(function(){
 
     StockData.prototype.displayStock = function(stockJson) {
         console.log("displayStock");
+        var self = this;
 
         var container = $(".contents");
         container.empty();
         container.css("margin-top", 0);
         this.$el = $("<div class='stock'></div>");
 
-        var htmlString = $("<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th></tr>");
-        htmlString.append("<tr><td><h3>" + stockJson.Name + "</h3></td>");
-        htmlString.append("<td>" + stockJson.Symbol + "</td>");
-        htmlString.append("<td>" + stockJson.Low + "</td>");
-        htmlString.append("<td>" + stockJson.High + "</td>");
-        htmlString.append("<td>" + stockJson.LastPrice + "</td>");
-        htmlString.append("</tr></table>");
+        var stockCount = stockJson.results.length;
+        var htmlString = "<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th></tr>";
 
+        for (var i = 0; i < stockJson.results.length; i++) {
+          nextResult = stockJson.results[i];
+          htmlString = htmlString + "<tr><td><h3>" +
+          "<a href='#' id='stock" + i + "'>" + nextResult.name + "</h3></a></td>" +
+          "<td>" + nextResult.symbol + "</td>" +
+          "<td>" + nextResult.low + "</td>" +
+          "<td>" + nextResult.high + "</td>" +
+          "<td>" + nextResult.lastPrice + "</td></tr>";
+        }
+
+        htmlString = htmlString + "</table>";
         this.$el.html(htmlString);
+
         $(".contents").append(this.$el);
+
+        for (var i = 0; i < stockJson.results.length; i++) {
+          var $stockLink = $("#stock" + i);
+          console.log("$stockLink: " + $stockLink.attr('id'));
+
+          $stockLink.on("click", function(){
+            self.displayStockGraph();
+          })
+        }
     }
+
+    StockData.prototype.displayStockGraph = function() {
+      console.log("displayStockGraph");
+    };
 
     StockData.prototype.handleSuccess = function(stockJson) {
       console.log("handleSuccess");
