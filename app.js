@@ -10,6 +10,7 @@ app.set("view engine", "hbs");
 
 var usersController = require("./app/controllers/users");
 var stocksController = require("./app/controllers/stocks");
+var ownershipsController = require("./app/controllers/ownerships");
 
 app.get("/", function(req, res){
   console.log("app.get");
@@ -19,6 +20,7 @@ app.get("/", function(req, res){
 
 app.use("/", usersController);
 app.use("/", stocksController);
+app.use("/", ownershipsController);
 
 app.listen(3000, function(){
   console.log("Listening on port 3000");
