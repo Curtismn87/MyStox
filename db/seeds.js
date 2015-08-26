@@ -1,7 +1,7 @@
 var DB = require("../db/connection");
 var User = DB.models.User;
 var Stock = DB.models.Stock;
-var Portfolio = DB.models.Portfolio;
+var Ownership = DB.models.Ownership;
 
 
 var users = [
@@ -20,19 +20,19 @@ var stocks = [
   {name:"American Express", ticker: "AXP"}
 ];
 
-var portfolios = [
-  {brokerageAccount: "Scott Trade", userId: "1", stockId: "1"},
-  {brokerageAccount: "Scott Trade", userId: "1", stockId: "2"},
-  {brokerageAccount: "E-Trade", userId: "2", stockId: "1"},
-  {brokerageAccount: "E-Trade", userId: "2", stockId: "2"},
-  {brokerageAccount: "E-Trade", userId: "3", stockId: "1"},
-  {brokerageAccount: "Fidelity", userId: "3", stockId: "6"},
-  {brokerageAccount: "Fidelity", userId: "4", stockId: "5"},
-  {brokerageAccount: "Fidelity", userId: "4", stockId: "4"},
-  {brokerageAccount: "Fidelity", userId: "4", stockId: "3"}
+var ownerships = [
+  {userId: "1", stockId: "1"},
+  {userId: "1", stockId: "2"},
+  {userId: "2", stockId: "1"},
+  {userId: "2", stockId: "2"},
+  {userId: "3", stockId: "1"},
+  {userId: "3", stockId: "6"},
+  {userId: "4", stockId: "5"},
+  {userId: "4", stockId: "4"},
+  {userId: "4", stockId: "3"}
 ];
 
 User.bulkCreate(users).then(function(){
   Stock.bulkCreate(stocks);
-  return Portfolio.bulkCreate(portfolios);
+  return Ownership.bulkCreate(ownerships);
 });

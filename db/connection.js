@@ -3,13 +3,10 @@ var Sequelize = require("sequelize");
 var sequelize = new Sequelize("postgres:///mystox_db");
 var User = sequelize.import("../app/models/user");
 var Stock = sequelize.import("../app/models/stock");
-var Portfolio = sequelize.import("../app/models/portfolio");
+var Ownership = sequelize.import("../app/models/ownership");
 
-//Stock.belings(User);
-//User.hasMany(Stock);
-
-Stock.belongsToMany(User, {through: 'portfolio'});
-User.belongsToMany(Stock, {through: 'portfolio'});
+Stock.belongsToMany(User, {through: Ownership});
+User.belongsToMany(Stock, {through: Ownership});
 
 module.exports = {
   sql: Sequelize,
@@ -17,6 +14,6 @@ module.exports = {
   models: {
     User: User,
     Stock: Stock,
-    Portfolio: Portfolio
+    Ownership: Ownership
   }
 };
