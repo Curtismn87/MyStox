@@ -7,7 +7,7 @@ $(document).ready(function(){
         console.log('Display');
         this.name = whichDisplay;
     }
-    var mainDisplay = new Display("display1");		// constructor
+    var displayObject = new Display("display1");		// constructor
 
     // ======= ======= ======= initEventListeners ======= ======= =======
     Display.prototype.initMenuDivs = function() {
@@ -76,11 +76,12 @@ $(document).ready(function(){
     // ======= ======= ======= menu items ======= ======= =======
     Display.prototype.displayPortfolioGroup = function() {
         console.log("displayPortfolioGroup");
-        // initPortfolio(["AAPL", "GOOGL", "HD"]);
+        getGroupData("portfolio");
     }
 
     Display.prototype.displayWatchGroup = function() {
         console.log("displayWatchGroup");
+        getGroupData("watch");
     }
 
     Display.prototype.displaySoldGroup = function() {
@@ -95,180 +96,87 @@ $(document).ready(function(){
         console.log("displayProfile");
     }
 
-    mainDisplay.initMenuDivs();
-    mainDisplay.initEventListeners();
+    displayObject.initMenuDivs();
+    displayObject.initEventListeners();
 
 
-  // // ======= ======= ======= new StockData ======= ======= =======
-  // function initPortfolio(stocksArray) {
-  //     console.log("initPortfolio");
-  //
-  //   var newStock = new StockData(stocksArray, function(stockJson) {
-  //     console.log("new StockData");
-  //
-  //       if (!stockJson || stockJson.Message){
-  //           console.error("Error: ", stockJson.Message);
-  //           return;
-  //       }
-  //       this.displayStock(stockJson);
-  //   });
-  //
-  //   function StockData(sSymbolArray, fCallback) {
-  //     console.log("StockData");
-  //     for (var i = 0; i < sSymbolArray.length; i++) {
-  //       this.symbol = sSymbolArray[i];
-  //       this.fCallback = fCallback;   // fCallback = error or process/display json
-  //       // this.dataSource = "http://dev.markitondemand.com/Api/v2/Quote/jsonp";
-  //
-  //       var symbolString = '';
-  //       for (var i = 0; i < sSymbolArray.length; i++) {
-  //         if (i == sSymbolArray.length - 1) {
-  //           symbolString = symbolString + sSymbolArray[i];
-  //         } else {
-  //           symbolString = symbolString + sSymbolArray[i] + ",";
-  //         }
-  //       }
-  //       this.dataSource = "http://marketdata.websol.barchart.com/getQuote.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=" + symbolString;
-  //     }
-  //   };
-  //
-  //   StockData.prototype.makeRequest = function() {
-  //     console.log("makeRequest");
-  //     if (this.ajaxRequest) { this.ajaxRequest.abort(); }
-  //     this.ajaxRequest = $.ajax({
-  //         data: { symbol: this.symbol },
-  //         type: 'GET',
-  //         // dataType: "json",
-  //         dataType: 'jsonp',
-  //         crossDomain: true,
-  //         url: this.dataSource,
-  //         success: this.handleSuccess,
-  //         error: this.handleError,
-  //         context: this
-  //     });
-  //   };
-  //
-  //   StockData.prototype.displayStock = function(stockJson) {
-  //     console.log("displayStock");
-  //     var self = this;
-  //
-  //     var container = $(".contents");
-  //     container.empty();
-  //     container.css("margin-top", 0);
-  //     this.$el = $("<div class='stock'></div>");
-  //
-  //     var stockCount = stockJson.results.length;
-  //     var htmlString = "<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th></tr>";
-  //
-  //     for (var i = 0; i < stockJson.results.length; i++) {
-  //       nextResult = stockJson.results[i];
-  //       htmlString = htmlString + "<tr><td><h3>" +
-  //       "<a href='#' id='stock" + i + "' value='" + nextResult.symbol + "' >" + nextResult.name + "</h3></a></td>" +
-  //       "<td>" + nextResult.symbol + "</td>" +
-  //       "<td>" + nextResult.low + "</td>" +
-  //       "<td>" + nextResult.high + "</td>" +
-  //       "<td>" + nextResult.lastPrice + "</td></tr>";
-  //     }
-  //
-  //     htmlString = htmlString + "</table>";
-  //     this.$el.html(htmlString);
-  //
-  //     $(".contents").append(this.$el);
-  //
-  //     for (var i = 0; i < stockJson.results.length; i++) {
-  //       var $stockLink = $("#stock" + i);
-  //       $stockLink.on("click", function(){
-  //         var linkValue = $(this).attr('value');
-  //         self.displayStockGraph(linkValue);
-  //       })
-  //     }
-  //   }
-  //
-  //   StockData.prototype.displayStockGraph = function(historySymbol) {
-  //     console.log("displayStockGraph");
-  //
-  //
-  //     // ======= ======= ======= History ======= ======= =======
-  //     // ======= ======= ======= History ======= ======= =======
-  //     // ======= ======= ======= History ======= ======= =======
-  //
-  //
-  //     var newHistory = new HistoryData(historySymbol, function(stockJson) {
-  //       console.log("new HistoryData");
-  //
-  //         if (!stockJson || stockJson.Message){
-  //             console.error("Error: ", stockJson.Message);
-  //             return;
-  //         }
-  //         this.displayStockHistory(stockJson);
-  //     });
-  //
-  //     function HistoryData(historySymbol, fCallback) {
-  //       console.log("HistoryData");
-  //         // this.symbol = sSymbol;
-  //         // this.fCallback = fCallback;   // fCallback = error or process/display json
-  //         console.log("historySymbol: " + historySymbol);
-  //         this.dataSource = "http://marketdata.websol.barchart.com/getHistory.json?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + historySymbol + "&type=daily&startDate=20140822000000";
-  //     }
-  //
-  //     HistoryData.prototype.getHistory = function() {
-  //       console.log("getHistory");
-  //       if (this.ajaxRequest) { this.ajaxRequest.abort(); }
-  //       this.ajaxRequest = $.ajax({
-  //           data: { symbol: historySymbol },
-  //           type: 'GET',
-  //           dataType: "json",
-  //           // dataType: 'jsonp',
-  //           crossDomain: true,
-  //           url: this.dataSource,
-  //           success: this.handleSuccess,
-  //           error: this.handleError,
-  //           always: this.handleAlways,
-  //           context: this
-  //       });
-  //     };
-  //     newHistory.getHistory(historySymbol);
-  //
-  //     HistoryData.prototype.handleAlways = function(stockJson) {
-  //       console.log("HistoryData.handleAlways");
-  //         this.fCallback(stockJson);
-  //     };
-  //
-  //     HistoryData.prototype.handleSuccess = function(stockJson) {
-  //       console.log("HistoryData.handleSuccess");
-  //         this.fCallback(stockJson);
-  //     };
-  //
-  //     HistoryData.prototype.handleError = function(stockJson) {
-  //       console.log("HistoryData.handleError");
-  //         console.error(stockJson);
-  //     };
-  //
-  //     StockData.prototype.displayStockHistory = function(stockJson) {
-  //       console.log("displayStockHistory");
-  //
-  //       var container = $(".contents");
-  //       container.empty();
-  //       container.css("margin-top", 0);
-  //       this.$el = $("<div class='stock'></div>");
-  //
-  //       var dateCount = stockJson.results.length;
-  //       console.log("dateCount: " + dateCount);
-  //       // var htmlString = "<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th></tr>";
-  //
-  //     }
-  //   };
-  //
-  //   StockData.prototype.handleSuccess = function(stockJson) {
-  //     console.log("handleSuccess");
-  //       this.fCallback(stockJson);
-  //   };
-  //
-  //   StockData.prototype.handleError = function(stockJson) {
-  //     console.log("handleError");
-  //       console.error(stockJson);
-  //   };
-  //   newStock.makeRequest(stocksArray);
-  // };
+    // ======= ======= ======= StockObject ======= ======= =======
+    function StockData(whichGroup, groupArray) {
+        console.log('StockData');
+        this.name = whichGroup;
+        this.groupArray = groupArray;
+        this.dataSource = "http://marketdata.websol.barchart.com/getQuote.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=";
+    }
+
+    function getGroupData(whichGroup) {
+        console.log('getGroupData');
+        if (whichGroup = "portfolio") {
+            whichArray = ["APPL", "GOOGL", "HD"]                            // from database
+            var portfolioGroup = new StockData(whichGroup, whichArray);	    // constructor
+            symbolString = portfolioGroup.makeGroupString();
+            groupData = portfolioGroup.getAjaxGroupData();
+        } else if (whichGroup = "portfolio") {
+            whichArray = ["APPL", "GOOGL", "HD"]                           // from database
+            var watchGroup = new StockData(whichGroup, whichArray);		   // constructor
+            symbolString = watchGroup.makeGroupString();
+        }
+    }
+
+    StockData.prototype.makeGroupString = function() {
+        console.log("makeGroupString");
+        var symbolString = '';
+        for (var i = 0; i < this.groupArray.length; i++) {
+            if (i == this.groupArray.length - 1) {
+              symbolString = symbolString + this.groupArray[i];
+            } else {
+              symbolString = symbolString + this.groupArray[i] + ",";
+            }
+        }
+        return symbolString;
+    }
+
+    StockData.prototype.getAjaxGroupData = function(symbolString) {
+        console.log("getAjaxGroupData");
+        if (this.ajaxRequest) {
+            this.ajaxRequest.abort();
+        }
+        this.ajaxRequest = $.ajax({
+            url: this.dataSource + symbolString,
+            // url: this.dataSource + "APPL",
+            type: 'GET',
+            dataType: 'jsonp',
+            crossDomain: true,
+            error: this.handleError,
+            always: this.handleAlways,
+            success: this.extractGroupData,
+            // success: function(data) {console.log("data: " + data.status.message);},
+            context: this
+        });
+    }
+
+    StockData.prototype.extractGroupData = function(jsonStock) {
+        console.log("extractGroupData");
+        console.log("jsonStock.code: " + jsonStock.status.code);
+        console.log("jsonStock.message: " + jsonStock.status.message);
+        if (jsonStock.results) {
+            var stockCount = jsonStock.results.length;
+            console.log("stockCount: " + stockCount);
+            for (var i = 0; i < jsonStock.results.length; i++) {
+                nextResult = jsonStock.results[i];
+                this.symbol = nextResult.symbol;
+                this.name = nextResult.name;
+                this.change = nextResult.change;
+                this.low = nextResult.low;
+                this.high = nextResult.high;
+                this.lastPrice = nextResult.lastPrice;
+            }
+        } else {
+            console.log("no results in this response");
+        }
+    }
+
+    StockData.prototype.handleError = function() {
+        console.log("handleError");
+    }
 
 });
