@@ -54,3 +54,28 @@ twitter
 • date
 • hashtag
 • text
+
+OBJECT DESIGN
+DisplayObject
+	menuList
+		loginLink
+		portfolioGroupLink
+		watchGroupLink
+		soldGroupLink
+		indexGroupLink
+		profileLink
+	displayGroupList
+		displayStockDataLink (history, data)
+		deleteStockLink (move to soldGroup)
+	displayStockData
+		deleteStockLink (move to soldGroup)
+	displayGroupHistories
+		hideStockHistory
+		showStockHistory
+	loginButtonLink
+StockObject
+	makeStockRequest
+	makeHistoryRequest
+	displayStockGroup
+	displayStockHistory
+	displayGroupHistories
