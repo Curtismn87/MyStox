@@ -137,10 +137,11 @@ $(document).ready(function(){
         console.log('StockData');
         this.name = whichGroup;             // portfolio, watchlist, sold, indexes
         this.groupArray = groupArray;       // stocks in group (returned from database)
+        this.stockObjectsArray = [];       // stocks in group (returned from database)
         this.displayObject = displayObject; // store display object for display access
         this.jsonCallback = "???";          // callback function required for jsonp data ???
-        // this.dataSource = "http://marketdata.websol.barchart.com/getQuote.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=";
-        this.dataSource = "http://dev.markitondemand.com/Api/v2/Quote/jsonp";
+        this.dataSource = "http://marketdata.websol.barchart.com/getQuote.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=";
+        // this.dataSource = "http://dev.markitondemand.com/Api/v2/Quote/jsonp";
         // this.dataSource = "http://dev.markitondemand.com/Api/v2/Quote";
     }
 
@@ -173,8 +174,8 @@ $(document).ready(function(){
         // });
 
         // == temp stock list for development
-        // tempArray = ["APPL", "GOOGL", "HD"];
-        tempArray = ["APPL"];
+        tempArray = ["AAPL", "GOOGL", "HD"];
+        // tempArray = ["APPL"];
         this.groupArray = tempArray;
         symbolString = this.makeGroupString();
         groupData = this.getAjaxGroupData(symbolString);
@@ -206,9 +207,9 @@ $(document).ready(function(){
             this.ajaxRequest.abort();
         }
         this.ajaxRequest = $.ajax({
-            url: this.dataSource,                       // markitondemand API
-            data: { symbol: symbolString },             // markitondemand API
-            // url: this.dataSource + symbolString,     // barchart API
+            // url: this.dataSource,                       // markitondemand API
+            // data: { symbol: symbolString },             // markitondemand API
+            url: this.dataSource + symbolString,     // barchart API
             type: 'GET',
             dataType: 'jsonp',
             crossDomain: true,
@@ -218,38 +219,24 @@ $(document).ready(function(){
             context: self
         });
 
-        // this.ajaxRequest = $.ajax({
-        //     url: this.dataSource + symbolString,
-        //     // url: this.dataSource,
-        //     // data: { symbol: "APPL" },
-        //     type: 'GET',
-        //     dataType: 'jsonp',
-        //     crossDomain: true,
-        // })
-        // this.ajaxRequest.done(extractGroupData(data, this));
-        // this.ajaxRequest.fail(this.handleError);
     }
 
     // ======= ======= ======= extractGroupData ======= ======= =======
     StockData.prototype.extractGroupData = function(jsonStock) {
-    // function extractGroupData(jsonStock, self) {
         console.log("extractGroupData");
         console.log("  this.name: " + this.name);
-        // console.log("jsonStock.code: " + jsonStock.status.code);
-        // console.log("jsonStock.message: " + jsonStock.status.message);
+        console.dir(jsonStock);
         if (jsonStock.results) {
             var stockCount = jsonStock.results.length;
             console.log("  stockCount: " + stockCount);
 
+            var tempDataArray = [];
             // == store extracted data in StockData instance
             for (var i = 0; i < jsonStock.results.length; i++) {
                 nextResult = jsonStock.results[i];
-                this.symbol = nextResult.symbol;
-                this.name = nextResult.name;
-                this.change = nextResult.change;
-                this.low = nextResult.low;
-                this.high = nextResult.high;
-                this.lastPrice = nextResult.lastPrice;
+                console.log("  nextResult.name: " + nextResult.name);
+                tempDataArray = [nextResult.symbol, nextResult.name, nextResult.change, nextResult.low, nextResult.high, nextResult.lastPrice];
+                this.stockObjectsArray.push(tempDataArray);
             }
         } else {
             console.log("  no results in this response");
