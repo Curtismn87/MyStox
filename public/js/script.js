@@ -20,6 +20,7 @@ $(document).ready(function(){
         console.log('Display');
         this.name = whichDisplay;
         this.menuArray = null;
+        this.stockDataObject = null;
     }
     var displayObject = new Display("display1");		// constructor
 
@@ -41,6 +42,8 @@ $(document).ready(function(){
         console.log("initEventListeners");
         console.log('  this.name: ' + this.name);
 
+        var groupDataObject;
+
         self = this;
         $(this.menuArray[0]).on("click", function(){
             self.displayLoginForm();
@@ -48,26 +51,31 @@ $(document).ready(function(){
         $(this.menuArray[1]).on("click", function(){
             updateMenu(self.menuArray[1], self);
             groupDataObject = makeStockDataObject("portfolio");
+            self.stockDataObject = groupDataObject;
             groupDataObject.getGroupData();
         });
         $(this.menuArray[2]).on("click", function(){
             updateMenu(self.menuArray[2], self);
             groupDataObject = makeStockDataObject("watch");
+            self.stockDataObject = groupDataObject;
             groupDataObject.getGroupData();
         });
         $(this.menuArray[3]).on("click", function(){
             updateMenu(self.menuArray[3], self);
             groupDataObject = makeStockDataObject("sold");
+            self.stockDataObject = groupDataObject;
             groupDataObject.getGroupData();
         });
         $(this.menuArray[4]).on("click", function(){
             updateMenu(self.menuArray[4], self);
             groupDataObject = makeStockDataObject("index");
+            self.stockDataObject = groupDataObject;
             groupDataObject.getGroupData();
         });
         $(this.menuArray[5]).on("click", function(){
             self.displayProfile();
         });
+
 
         function updateMenu(whichMenuItem, self) {
             console.log("updateMenu");
@@ -114,6 +122,7 @@ $(document).ready(function(){
             console.log("loginBtn");
             self.updateLoginMenuItem();
             groupDataObject = makeStockDataObject("portfolio");
+            this.stockDataObject = groupDataObject;
             groupDataObject.getGroupData();
         })
     }
@@ -128,6 +137,57 @@ $(document).ready(function(){
     displayObject.initMenuDivs();
     displayObject.initEventListeners();
 
+    // ======= ======= ======= displayGroupData ======= ======= =======
+    Display.prototype.displayGroupData = function() {
+        console.log("displayGroupData");
+        var self = this;
+
+        var container = $(".contents");
+        container.empty();
+        container.css("margin-top", 0);
+        this.$el = $("<div class='stock'></div>");
+
+        var displayObject = this.stockDataObject;
+        console.log("  displayObject: " + displayObject)
+        console.log("  displayObject.name: " + displayObject.name)
+        console.log("  displayObject.stockObjectsArray[0]: " + displayObject.stockObjectsArray[0])
+        console.log("  displayObject.stockObjectsArray.length: " + displayObject.stockObjectsArray.length)
+
+        var stockCount = displayObject.stockObjectsArray.length;
+        console.log("stockCount: " + stockCount);
+        var htmlString = "<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th><th>change</th></tr>";
+
+        for (var i = 0; i < displayObject.stockObjectsArray.length; i++) {
+            nextStockDataArray = displayObject.stockObjectsArray[i];
+            nextSymbol = nextStockDataArray[0];
+            nextName = nextStockDataArray[1];
+            nextNetChange = nextStockDataArray[2];
+            nextLow = nextStockDataArray[3];
+            nextHigh = nextStockDataArray[4];
+            nextLastPrice = nextStockDataArray[5];
+
+            htmlString = htmlString + "<tr><td><h3>" +
+            "<a href='#' id='stock" + i + "' value='" + nextSymbol + "' >" + nextName + "</h3></a></td>" +
+            "<td>" + nextSymbol + "</td>" +
+            "<td>" + nextLow + "</td>" +
+            "<td>" + nextHigh + "</td>" +
+            "<td>" + nextLastPrice + "</td>" +
+            "<td>" + nextNetChange + "</td></tr>";
+        }
+
+        htmlString = htmlString + "</table>";
+        this.$el.html(htmlString);
+
+        $(".contents").append(this.$el);
+
+        for (var i = 0; i < displayObject.stockObjectsArray.length; i++) {
+            var $stockLink = $("#stock" + i);
+            $stockLink.on("click", function(){
+                var linkValue = $(this).attr('value');
+                self.stockDataObject.displayStockGraph(linkValue);
+            })
+        }
+    }
 
     // ======= ======= ======= StockObject ======= ======= =======
     // ======= ======= ======= StockObject ======= ======= =======
@@ -167,8 +227,8 @@ $(document).ready(function(){
         //     method: "get"
         // }).then(function(response) {
         //     this.groupArray = response;                     // from database
-        //     symbolStrig = this.makeGroupString();           // array => string
-        //     groupData = this.getAjaxGroupData(symbolStrig); // make ajax request
+        //     symbolString = this.makeGroupString();           // array => string
+        //     groupData = this.getAjaxGroupData(symbolString); // make ajax request
         // }).fail(function() {
         //     console.log("database query failed");
         // });
@@ -198,7 +258,7 @@ $(document).ready(function(){
     }
 
     // ======= ======= ======= getAjaxGroupData ======= ======= =======
-    StockData.prototype.getAjaxGroupData = function(symbolStrig) {
+    StockData.prototype.getAjaxGroupData = function(symbolString) {
         console.log("getAjaxGroupData");
         console.log("  this.name: " + this.name);
         self = this;
@@ -235,9 +295,10 @@ $(document).ready(function(){
             for (var i = 0; i < jsonStock.results.length; i++) {
                 nextResult = jsonStock.results[i];
                 console.log("  nextResult.name: " + nextResult.name);
-                tempDataArray = [nextResult.symbol, nextResult.name, nextResult.change, nextResult.low, nextResult.high, nextResult.lastPrice];
+                tempDataArray = [nextResult.symbol, nextResult.name, nextResult.netChange, nextResult.low, nextResult.high, nextResult.lastPrice];
                 this.stockObjectsArray.push(tempDataArray);
             }
+            displayObject.displayGroupData();
         } else {
             console.log("  no results in this response");
             this.handleError(jsonStock);
@@ -261,4 +322,52 @@ $(document).ready(function(){
         $(".contents").css("margin-top", "100px");
     }
 
+    // ======= ======= ======= displayGroupData ======= ======= =======
+    StockData.prototype.displayStockGraph = function(linkValue) {
+        console.log("displayStockGraph");
+
+        this.dataSource = "http://marketdata.websol.barchart.com/getHistory.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + linkValue +
+        "&type=daily&startDate=20140822000000";
+        this.getAjaxHistoryData();
+
+    }
+
+    // ======= ======= ======= getAjaxGroupData ======= ======= =======
+    StockData.prototype.getAjaxHistoryData = function() {
+        console.log("getAjaxHistoryData");
+        console.log("  this.name: " + this.name);
+        self = this;
+        // if (this.ajaxRequest) {
+        //     console.log("request aborted");
+        //     this.ajaxRequest.abort();
+        // }
+        this.ajaxRequest = $.ajax({
+            // url: this.dataSource,                       // markitondemand API
+            // data: { symbol: symbolString },             // markitondemand API
+            url: this.dataSource,     // barchart API
+            type: 'GET',
+            dataType: 'jsonp',
+            crossDomain: true,
+            error: self.handleError,
+            always: self.handleAlways,
+            success: self.extractGraphData,
+            context: self
+        });
+    }
+
+    // ======= ======= ======= getAjaxGroupData ======= ======= =======
+    StockData.prototype.extractGraphData = function(jsonData) {
+        console.log("getAjaxHistoryData");
+        console.dir(jsonData);
+
+        var closeValuesArray = [];
+        for (i = 0; i < jsonData.results.length; i++) {
+            nextClose = jsonData.results[i].close;
+            nextDate = jsonData.results[i].tradingDay;
+            nextDataPoint = [nextDate, nextClose];
+            closeValuesArray.push(nextDataPoint);
+        }
+
+
+    }
 });
