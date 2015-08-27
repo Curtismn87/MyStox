@@ -46,7 +46,7 @@ router.patch("/users/:id", function(req, res){
 
 // == READ all user stocks
 router.get("/users/:id/ownership", function(req, res){
-    console.log("/users/:id/ownership");
+    console.log("GET: /users/:id/ownership");
     User.findById(req.params.id).then(function(user){
         if(!user) return error(res, "not found");
         user.getStocks().then(function(stocks){
@@ -63,6 +63,17 @@ router.delete("/users/:id", function(req, res){
             res.json({success: true});
         });
     });
+});
+
+// == DELETE stock from group
+router.delete("/users/:user_id/stock/:id", function(req, res){
+    // User.findById(req.params.id).then(function(user){
+    //     if(!user) return error(res, "not found");
+    //         Ownership.findById(req.params.id).then(function(stock){
+    //             stock.destroy().then(function(){
+    //         res.json({success: true});
+    //     });
+    // });
 });
 
 module.exports = router;

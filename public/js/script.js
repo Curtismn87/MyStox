@@ -295,6 +295,20 @@ $(document).ready(function(){
         console.log('portfolioToSold');
         console.log('  stockId: ' + stockId);
 
+        var url = "/users/2/stock/" + stockId;
+        // var url = "http://localhost:3000/users/2/stock/" + stockId;
+        $.ajax({
+            url: url,
+            type: "delete",
+            dataType: "json"
+        }).done(function(){
+            console.log("ajax request success!");
+        }).fail(function(){
+            console.log("ajax request fails!");
+        }).always(function(){
+            console.log("this always happens regardless of successful ajax request or not");
+        });
+
     }
 
     // ======= ======= ======= getUserGroupData ======= ======= =======
