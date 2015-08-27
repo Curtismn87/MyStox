@@ -23,7 +23,6 @@ body {
 /* ======= rows & columns ======= */
 .row {
   overflow: auto;
-  border: 1px solid rebeccapurple;
 }
 
 .column {
@@ -216,3 +215,4 @@ th, td {
 .row_footer{
   height: 20% !important;
 }
+
