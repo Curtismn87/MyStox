@@ -10,6 +10,7 @@ app.use(bodyParser.json());
 app.use("/public", express.static(path.join(__dirname + "/public")));
 app.set("view engine", "hbs");
 
+var usersController = require("./app/controllers/users");
 var stocksController = require("./app/controllers/stocks");
 var ownershipsController = require("./app/controllers/ownerships");
 
