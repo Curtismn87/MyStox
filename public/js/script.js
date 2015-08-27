@@ -19,7 +19,7 @@ $(document).ready(function(){
     function Display(whichDisplay) {
         console.log('Display');
         this.name = whichDisplay;
-        this.menuArray = null;
+        this.menuLinkArray = null;
         this.stockDataObject = null;
     }
     var displayObject = new Display("display1");		// constructor
@@ -29,65 +29,69 @@ $(document).ready(function(){
         console.log("initMenuDivs");
         console.log('  this.name: ' + this.name);
 
-        var menuArray = [];
+        var menuLinkArray = [];
         var menuLength = $(".menuLink").length;
         for (i = 0; i < menuLength; i++) {
-            menuArray.push($(".menuLink").eq(i));
+            menuLinkArray.push($(".menuLink").eq(i));
         }
-        this.menuArray = menuArray;
+        this.menuLinkArray = menuLinkArray;
     }
 
     // ======= ======= ======= initEventListeners ======= ======= =======
     Display.prototype.initEventListeners = function() {
         console.log("initEventListeners");
         console.log('  this.name: ' + this.name);
+        console.log('  this.menuLinkArray: ' + this.menuLinkArray);
 
         var groupDataObject;
 
         self = this;
-        $(this.menuArray[0]).on("click", function(){
-            self.displayLoginForm();
+        $(this.menuLinkArray[0]).on("click", function(){
+            console.log("login");
+            displayObject.displayLoginForm();
         });
-        $(this.menuArray[1]).on("click", function(){
-            updateMenu(self.menuArray[1], self);
+        $(this.menuLinkArray[1]).on("click", function(){
+            console.log("portfolio");
+            updateMenu(displayObject.menuLinkArray[1], displayObject);
             groupDataObject = makeStockDataObject("portfolio");
-            self.stockDataObject = groupDataObject;
+            displayObject.stockDataObject = groupDataObject;
             groupDataObject.getGroupData();
         });
-        $(this.menuArray[2]).on("click", function(){
-            updateMenu(self.menuArray[2], self);
+        $(this.menuLinkArray[2]).on("click", function(){
+            console.log("watch");
+            updateMenu(displayObject.menuLinkArray[2], displayObject);
             groupDataObject = makeStockDataObject("watch");
-            self.stockDataObject = groupDataObject;
+            displayObject.stockDataObject = groupDataObject;
             groupDataObject.getGroupData();
         });
-        $(this.menuArray[3]).on("click", function(){
-            updateMenu(self.menuArray[3], self);
+        $(this.menuLinkArray[3]).on("click", function(){
+            updateMenu(displayObject.menuLinkArray[3], displayObject);
             groupDataObject = makeStockDataObject("sold");
-            self.stockDataObject = groupDataObject;
+            displayObject.stockDataObject = groupDataObject;
             groupDataObject.getGroupData();
         });
-        $(this.menuArray[4]).on("click", function(){
-            updateMenu(self.menuArray[4], self);
+        $(this.menuLinkArray[4]).on("click", function(){
+            updateMenu(displayObject.menuLinkArray[4], displayObject);
             groupDataObject = makeStockDataObject("index");
-            self.stockDataObject = groupDataObject;
+            displayObject.stockDataObject = groupDataObject;
             groupDataObject.getGroupData();
         });
-        $(this.menuArray[5]).on("click", function(){
-            self.displayProfile();
+        $(this.menuLinkArray[5]).on("click", function(){
+            displayObject.displayProfile();
         });
 
 
         function updateMenu(whichMenuItem, self) {
             console.log("updateMenu");
             console.log('  self.name: ' + self.name);
-            for (i = 0; i < self.menuArray.length; i++) {
-                nextMenuItem = self.menuArray[i];
+            for (i = 0; i < self.menuLinkArray.length; i++) {
+                nextMenuItem = self.menuLinkArray[i];
                 console.log("  nextMenuItem: " + nextMenuItem.attr('class'));
                 nextMenuItem.removeClass("thisPage");
             }
             whichMenuItem.addClass("thisPage");
-            for (i = 0; i < self.menuArray.length; i++) {
-                nextMenuItem = self.menuArray[i];
+            for (i = 0; i < self.menuLinkArray.length; i++) {
+                nextMenuItem = self.menuLinkArray[i];
                 console.log("  nextMenuItem: " + nextMenuItem.attr('class'));
             }
         }
@@ -120,9 +124,9 @@ $(document).ready(function(){
         // == activate login button
         $(this.loginBtn).on("click", function(){
             console.log("loginBtn");
-            self.updateLoginMenuItem();
+            displayObject.updateLoginMenuItem();
             groupDataObject = makeStockDataObject("portfolio");
-            this.stockDataObject = groupDataObject;
+            displayObject.stockDataObject = groupDataObject;
             groupDataObject.getGroupData();
         })
     }
@@ -130,10 +134,11 @@ $(document).ready(function(){
     // ======= ======= ======= loginForm ======= ======= =======
     Display.prototype.updateLoginMenuItem = function() {
         console.log("updateLoginMenuItem");
-        // this.menuArray[0].text("logout");
-        this.menuArray[0].html("<a href='#'>logout</a>");
+        // this.menuLinkArray[0].text("logout");
+        this.menuLinkArray[0].html("<a href='#'>logout</a>");
     }
 
+    // ======= ======= ======= initialize interface ======= ======= =======
     displayObject.initMenuDivs();
     displayObject.initEventListeners();
 
@@ -204,14 +209,37 @@ $(document).ready(function(){
         // this.dataSource = "http://dev.markitondemand.com/Api/v2/Quote";
     }
 
+
+
+    // function sendAjax(whichButton, whichMethod, whichUrl, whichParams) {
+    //   console.log("sendAjax");
+    //   var params;
+    //   if (whichParams == 0) {
+    //     params = {title: $(whichButton).siblings("[name=title]").val()}
+    //   } else {
+    //     params = whichParams;
+    //   }
+    //   if (!params) {params = {}};
+    //   var id = 0;
+    //   $.ajax({
+    //     method: whichMethod,
+    //     contentType: "application/json",
+    //     url: whichUrl,
+    //     data: JSON.stringify(params)
+    //   }).always(function(){
+    //     location.reload();
+    //   });
+    // };
+
     // ======= ======= ======= getGroupData ======= ======= =======
     StockData.prototype.getGroupData = function() {
         console.log('getGroupData');
         console.log('  this.name: ' + this.name);
+        // whichMethod, whichUrl, whichParams
 
         // == create url for local server API
         if (this.name = "portfolio") {
-            urlString = "/users/:id/stocks/";
+            urlString = "/users/:id/stocks";
         } else if (this.name = "watch") {
             urlString = "/users/:id/watch/";
         } else if (this.name = "sold") {
@@ -221,16 +249,16 @@ $(document).ready(function(){
         }
 
         // == extract stock list from database
-        // $.ajax({
-        //     url: urlString,
-        //     method: "get"
-        // }).then(function(response) {
-        //     this.groupArray = response;                     // from database
-        //     symbolString = this.makeGroupString();           // array => string
-        //     groupData = this.getAjaxGroupData(symbolString); // make ajax request
-        // }).fail(function() {
-        //     console.log("database query failed");
-        // });
+        $.ajax({
+            url: urlString,
+            method: "get"
+        }).then(function(response) {
+            this.groupArray = response;                     // from database
+            symbolString = this.makeGroupString();           // array => string
+            groupData = this.getAjaxGroupData(symbolString); // make ajax request
+        }).fail(function() {
+            console.log("database query failed");
+        });
 
         // == temp stock list for development
         tempArray = ["AAPL", "GOOGL", "HD"];
