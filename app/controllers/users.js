@@ -45,7 +45,8 @@ router.patch("/users/:id", function(req, res){
 });
 
 // == READ all user stocks
-router.get("/users/:id/stocks", function(req, res){
+router.get("/users/:id/ownership", function(req, res){
+    console.log("/users/:id/ownership");
     User.findById(req.params.id).then(function(user){
         if(!user) return error(res, "not found");
         user.getStocks().then(function(stocks){

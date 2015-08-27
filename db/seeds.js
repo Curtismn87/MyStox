@@ -12,12 +12,14 @@ var users = [
 ];
 
 var stocks = [
-  {name:"Google", ticker: "GOOG"},
+  {name:"Google", ticker: "GOOGL"},
   {name:"Apple", ticker: "AAPL"},
   {name:"Facebook", ticker: "FB"},
   {name:"Nike", ticker: "NKE"},
   {name:"Under Armour", ticker: "UA"},
-  {name:"American Express", ticker: "AXP"}
+  {name:"American Express", ticker: "AXP"},
+  {name:"Reingold", ticker: "GOLD"},
+  {name:"Home Depot", ticker: "HD"}
 ];
 
 var ownerships = [
@@ -25,6 +27,8 @@ var ownerships = [
   {userId: "1", stockId: "2"},
   {userId: "2", stockId: "1"},
   {userId: "2", stockId: "2"},
+  {userId: "2", stockId: "7"},
+  {userId: "2", stockId: "8"},
   {userId: "3", stockId: "1"},
   {userId: "3", stockId: "6"},
   {userId: "4", stockId: "5"},
