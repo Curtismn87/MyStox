@@ -184,9 +184,13 @@ $(document).ready(function(){
         }
     }
 
+
+
     // ======= ======= ======= StockObject ======= ======= =======
     // ======= ======= ======= StockObject ======= ======= =======
     // ======= ======= ======= StockObject ======= ======= =======
+
+
 
     function StockData(whichGroup, groupArray, displayObject) {
         console.log('StockData');
@@ -367,98 +371,220 @@ $(document).ready(function(){
         console.log("closeValuesArray[0]: " + closeValuesArray[0]);
         $(".contents").html("");
 
+        InitChart();
+
+
+
+        // ======= ======= ======= StockObject ======= ======= =======
+        // ======= ======= ======= StockObject ======= ======= =======
+        // ======= ======= ======= StockObject ======= ======= =======
+
+
+
+        function InitChart() {
+            console.log("InitChart");
+
+            // == datasource
+            var data = [{
+                "sale": "202",
+                "year": "2000"
+            }, {
+                "sale": "215",
+                "year": "2002"
+            }, {
+                "sale": "179",
+                "year": "2004"
+            }, {
+                "sale": "199",
+                "year": "2006"
+            }, {
+                "sale": "134",
+                "year": "2008"
+            }, {
+                "sale": "176",
+                "year": "2010"
+            }];
+
+            var data2 = [{
+                "sale": "152",
+                "year": "2000"
+            }, {
+                "sale": "189",
+                "year": "2002"
+            }, {
+                "sale": "179",
+                "year": "2004"
+            }, {
+                "sale": "199",
+                "year": "2006"
+            }, {
+                "sale": "134",
+                "year": "2008"
+            }, {
+                "sale": "176",
+                "year": "2010"
+            }];
+
+            check = $(".visualisation").attr("class");
+            console.log("check: " + check);
+
+            // == select svg object; set xywh/margins
+            var vis = d3.select(".visualisation"),
+                WIDTH = 1000,
+                HEIGHT = 500,
+                MARGINS = {
+                    top: 20,
+                    right: 20,
+                    bottom: 20,
+                    left: 50
+                },
+
+                // == Range: graph_wh inside container, Domain: data max/min values
+                xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([2000, 2010]),
+                yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([134, 215]),
+
+                // == create axes (d3.svg.axis method via api link)
+                xAxis = d3.svg.axis()
+                    .scale(xScale),
+                yAxis = d3.svg.axis()
+                    .scale(yScale)
+                    .orient("left");    // /////// /////// ///////
+
+            console.log("vis: " + vis);
+
+            // == append axes to container; add styles
+            vis.append("svg:g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+                .call(xAxis);
+            vis.append("svg:g")
+                .attr("class", "y axis")
+                .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+                .call(yAxis);
+
+            // == adjust yAxis orientation
+            yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient("left");
+
+            // == add line object; apply scales
+            var lineGen = d3.svg.line()
+                .x(function(d) {
+                    return xScale(d.year);
+                })
+                .y(function(d) {
+                    return yScale(d.sale);
+                })
+                .interpolate("basis");
+
+            // == append line path to svg; set params
+            vis.append('svg:path')
+                .attr('d', lineGen(data))
+                .attr('stroke', 'green')
+                .attr('stroke-width', 2)
+                .attr('fill', 'none');
+            vis.append('svg:path')
+                .attr('d', lineGen(data2))
+                .attr('stroke', 'blue')
+                .attr('stroke-width', 2)
+                .attr('fill', 'none');
+        }
+    }
+})
+
+
         // ======= ======= ======= big graph axes ======= ======= =======
+
         // basic SVG setup
-    	var margin = { top: 20, right: 100, bottom: 40, left: 100 };
-    	var height = 300 - margin.top - margin.bottom;
-    	var width = 700 - margin.left - margin.right;
+    	// var margin = { top: 20, right: 100, bottom: 40, left: 100 };
+    	// var height = 300 - margin.top - margin.bottom;
+    	// var width = 700 - margin.left - margin.right;
+        //
+        // var svg = d3.select(".contents").append("svg")
+        //     .attr("width", width + margin.left + margin.right)
+        //     .attr("height", height + margin.top + margin.bottom)
+        //     .append("g")
+        //     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        //
+        // // setup scales - the domain is specified inside of the function called when we load the data
+    	// var xScale = d3.time.scale().range([0, width]);
+    	// var yScale = d3.scale.linear().range([height, 0]);
+    	// var color = d3.scale.category10();
+        //
+        // // setup the axes
+        // var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+        // var yAxis = d3.svg.axis().scale(yScale).orient("left");
+        //
+        // // create function to parse dates into date objects
+    	// var parseDate = d3.time.format("%Y-%m-%d").parse;
+    	// var formatDate = d3.time.format("%Y-%m-%d");
+    	// // var bisectDate = d3.bisector(function(d) { return d.date; }).left;
+        //
+        // // ======= ======= ======= blue line stuff ======= ======= =======
+        // var lineData = [ { "x": 1,   "y": 5},  { "x": 20,  "y": 20},
+        //                  { "x": 40,  "y": 10}, { "x": 300,  "y": 40},
+        //                  { "x": 300,  "y": 5},  { "x": 400, "y": 60}];
+        //
+        // var lineFunction = d3.svg.line()
+        //     .x(function(d) { return d.x; })
+        //     .y(function(d) { return d.y; })
+        //     .interpolate("linear");
+        //
+        // var lineGraph = svg.append("path")
+        //     .attr("d", lineFunction(lineData))
+        //     .attr("stroke", "blue")
+        //     .attr("stroke-width", 2)
+        //     .attr("fill", "none");
+        //
+        //     // import data and create chart
+        // 	d3.csv("stock_data.csv",
+        //
+        //         function(d) {
+        // 			return {
+        // 				date: parseDate(d.date),
+        // 				Amazon: +d.Amazon,
+        // 				Apple: +d.Apple,
+        // 				Facebook: +d.Facebook,
+        // 				Google: +d.Google,
+        // 				IBM: +d.IBM,
+        // 				Microsoft: +d.Microsoft
+        // 			};
+        // 		},
+        //
+        // 		function(error, data) {
+        //
+        // 			// add the x axis
+        // 			svg.append("g")
+        // 				.attr("class", "x axis")
+        // 				.attr("transform", "translate(0," + height + ")")
+        // 				.call(xAxis);
+        //
+        // 			// add the y axis
+        // 			svg.append("g")
+        // 				.attr("class", "y axis")
+        // 				.call(yAxis)
+        // 				.append("text")
+        // 				.attr("transform","rotate(-90)")
+        // 				.attr("y",-60)
+        // 				.attr("dy",".71em")
+        // 				.style("text-anchor","end")
+        // 				.text("Price ($)");
+        //
+        //             var stock = svg.selectAll(".stockXYZ")
+        // 				// .data(stocks)
+        //                 .data(closeValuesArray)
+        // 				.enter().append("g")
+        // 				.attr("class","stockXYZ");
+        //
+        // 			// add the stock price paths
+        // 			stock.append("path")
+        // 				.attr("class","line")
+        // 				.attr("id",function(d,i){ return "id" + i; })
+        // 				.attr("d", function(d) {
+        // 					return line(d.values);
+        // 				})
+        // 				.style("stroke", function(d) { return color(d.name); });
 
-        var svg = d3.select(".contents").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        // setup scales - the domain is specified inside of the function called when we load the data
-    	var xScale = d3.time.scale().range([0, width]);
-    	var yScale = d3.scale.linear().range([height, 0]);
-    	var color = d3.scale.category10();
-
-        // setup the axes
-        var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
-        var yAxis = d3.svg.axis().scale(yScale).orient("left");
-
-        // create function to parse dates into date objects
-    	var parseDate = d3.time.format("%Y-%m-%d").parse;
-    	var formatDate = d3.time.format("%Y-%m-%d");
-    	// var bisectDate = d3.bisector(function(d) { return d.date; }).left;
-
-        // ======= ======= ======= blue line stuff ======= ======= =======
-        var lineData = [ { "x": 1,   "y": 5},  { "x": 20,  "y": 20},
-                         { "x": 40,  "y": 10}, { "x": 60,  "y": 40},
-                         { "x": 80,  "y": 5},  { "x": 100, "y": 60}];
-
-        var lineFunction = d3.svg.line()
-            .x(function(d) { return d.x; })
-            .y(function(d) { return d.y; })
-            .interpolate("linear");
-
-        var lineGraph = svg.append("path")
-            .attr("d", lineFunction(lineData))
-            .attr("stroke", "blue")
-            .attr("stroke-width", 2)
-            .attr("fill", "none");
-
-            // import data and create chart
-        	d3.csv("stock_data.csv",
-
-                function(d) {
-        			return {
-        				date: parseDate(d.date),
-        				Amazon: +d.Amazon,
-        				Apple: +d.Apple,
-        				Facebook: +d.Facebook,
-        				Google: +d.Google,
-        				IBM: +d.IBM,
-        				Microsoft: +d.Microsoft
-        			};
-        		},
-
-        		function(error, data) {
-
-        			// add the x axis
-        			svg.append("g")
-        				.attr("class", "x axis")
-        				.attr("transform", "translate(0," + height + ")")
-        				.call(xAxis);
-
-        			// add the y axis
-        			svg.append("g")
-        				.attr("class", "y axis")
-        				.call(yAxis)
-        				.append("text")
-        				.attr("transform","rotate(-90)")
-        				.attr("y",-60)
-        				.attr("dy",".71em")
-        				.style("text-anchor","end")
-        				.text("Price ($)");
-
-                    var stock = svg.selectAll(".stockXYZ")
-        				// .data(stocks)
-                        .data(closeValuesArray)
-        				.enter().append("g")
-        				.attr("class","stockXYZ");
-
-        			// add the stock price paths
-        			stock.append("path")
-        				.attr("class","line")
-        				.attr("id",function(d,i){ return "id" + i; })
-        				.attr("d", function(d) {
-        					return line(d.values);
-        				})
-        				.style("stroke", function(d) { return color(d.name); });
-
-                });
 
                 // ======= ======= ======= little blue line ======= ======= =======
                 // ======= ======= ======= little blue line ======= ======= =======
@@ -809,5 +935,3 @@ $(document).ready(function(){
         //   d.price = +d.price;
         //   return d;
         // }
-    }
-});

@@ -100,6 +100,18 @@ th, td {
     padding: 10px;
 }
 
+/* ======= d3 ======= */
+.axis path {
+    fill: none;
+    stroke: #777;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: Lato;
+    font-size: 13px;
+}
+
 /* ======= menus ======= */
 #main_nav {
   position: absolute;
