@@ -15,6 +15,6 @@ module.exports = {
   models: {
     User: User,
     Stock: Stock,
-    Ownership: Ownership
+    Ownership: Ownership,
   }
 };
