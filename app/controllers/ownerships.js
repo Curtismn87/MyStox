@@ -1,4 +1,4 @@
-// ======= ======= ======= CONTROLLER users.js ======= ======= =======
+// ======= ======= ======= CONTROLLER ownerships.js ======= ======= =======
 var express = require("express");
 var router = express.Router();
 var Ownership = require("../../db/connection").models.Ownership;

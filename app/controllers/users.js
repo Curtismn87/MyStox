@@ -26,10 +26,11 @@ router.get("/users", function(req, res){
 
 // == READ user
 router.get("/users/:id", function(req, res){
+    console.log("/users/:id");
     User.findById(req.params.id).then(function(user){
         if(!user) return error(res, "not found");
-            res.json(user);
-        });
+        res.json(user);
+        console.dir(res.json(user));
     });
 });
 

@@ -119,8 +119,28 @@ $(document).ready(function(){
         $(this.loginBtn).on("click", function(){
             console.log("loginBtn");
             displayObject.updateLoginMenuItem();
-            displayObject.updateMenu("portfolio", displayObject.menuLinkArray[1], displayObject);
+            displayObject.loginUser();
+            // displayObject.updateMenu("portfolio", displayObject.menuLinkArray[1], displayObject);
         })
+    }
+
+    // ======= ======= ======= updateLoginMenuItem ======= ======= =======
+    Display.prototype.loginUser = function() {
+        console.log("loginUser");
+
+        var url = "http://localhost:3000/users/2";
+        $.ajax({
+            url: url,
+            type: "get",
+            dataType: "json"
+        }).done(function(){
+            console.log("ajax request success!");
+        }).fail(function(){
+            console.log("ajax request fails!");
+        }).always(function(){
+            console.log("this always happens regardless of successful ajax request or not");
+        });
+
     }
 
     // ======= ======= ======= updateLoginMenuItem ======= ======= =======
