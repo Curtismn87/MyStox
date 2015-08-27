@@ -96,6 +96,10 @@ body {
   line-height: 40px;
 }
 
+table {
+    width: 100%;
+}
+
 table, th, td {
     border: 1px solid red;
     border-collapse: collapse;
@@ -115,6 +119,13 @@ th, td {
 .axis text {
     font-family: Lato;
     font-size: 13px;
+}
+
+svg {
+    float: left;
+    width: 90%;
+    height: 90%;
+    display: none;
 }
 
 /* ======= menus ======= */

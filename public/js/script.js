@@ -75,22 +75,27 @@ $(document).ready(function(){
         console.log("updateMenu");
         console.log('  self.name: ' + self.name);
 
+        // == remove thisPage class from all menuLinks
+        if (whichMenu != "login") {
+            for (i = 0; i < self.menuLinkArray.length; i++) {
+                nextMenuItem = self.menuLinkArray[i];
+                nextMenuItem.removeClass("thisPage");
+            }
+
+            // == add thisPage for current page
+            whichMenuItem.addClass("thisPage");
+            for (i = 0; i < self.menuLinkArray.length; i++) {
+                nextMenuItem = self.menuLinkArray[i];
+            }
+        } else {
+            whichMenu = "portfolio";
+        }
+
         groupDataObject = makeStockDataObject(whichMenu);
         displayObject.stockDataObject = groupDataObject;
         displayObject.displaySubMenu("portfolio");
         groupDataObject.getUserGroupData();
 
-        // == remove thisPage class from all menuLinks
-        for (i = 0; i < self.menuLinkArray.length; i++) {
-            nextMenuItem = self.menuLinkArray[i];
-            nextMenuItem.removeClass("thisPage");
-        }
-
-        // == add thisPage for current page
-        whichMenuItem.addClass("thisPage");
-        for (i = 0; i < self.menuLinkArray.length; i++) {
-            nextMenuItem = self.menuLinkArray[i];
-        }
     }
 
     // ======= ======= ======= loginForm ======= ======= =======
@@ -121,7 +126,7 @@ $(document).ready(function(){
             console.log("loginBtn");
             displayObject.updateLoginMenuItem();
             displayObject.loginUser();
-            // displayObject.updateMenu("portfolio", displayObject.menuLinkArray[1], displayObject);
+            displayObject.updateMenu("login", displayObject.menuLinkArray[1], displayObject);
         })
     }
 
@@ -248,17 +253,12 @@ $(document).ready(function(){
 
             // == activate delete button
             var db_id = nextTickerArray[i][0];
-            console.log(i + ' db_id: ' + db_id);
             var $deleteStockBtn = $("#" + db_id);
             $deleteStockBtn.on("click", function(){
                 console.log("deleteStockBtn");
                 var element_id = $(this).attr('id');
-                // var idLength = element_id.length;
-                // var id = nextName.substring(idLength - 1, idLength);
                 groupDataObject.portfolioToSold(element_id);
             })
-
-
         }
     }
 
@@ -432,13 +432,11 @@ $(document).ready(function(){
         console.dir(jsonStock);
         if (jsonStock.results) {
             var stockCount = jsonStock.results.length;
-            console.log("  stockCount: " + stockCount);
 
             var tempDataArray = [];
             // == store extracted data in StockData instance
             for (var i = 0; i < jsonStock.results.length; i++) {
                 nextResult = jsonStock.results[i];
-                console.log("  nextResult.name: " + nextResult.name);
                 tempDataArray = [nextResult.symbol, nextResult.name, nextResult.netChange, nextResult.low, nextResult.high, nextResult.lastPrice];
                 this.stockObjectsArray.push(tempDataArray);
             }
@@ -502,19 +500,46 @@ $(document).ready(function(){
         console.log("extractGraphData");
         console.dir(jsonData);
 
+        var maxClose = 0;
         var closeValuesArray = [];
-        // for (i = 0; i < jsonData.results.length; i++) {
         var emptyObject = { "x":null, "y":null }
+        // for (i = 0; i < jsonData.results.length; i++) {
         for (i = 0; i < 10; i++) {
-            nextDate = jsonData.results[i].tradingDay;
+            nextDate = Date.parse(jsonData.results[i].tradingDay);
             nextClose = jsonData.results[i].close;
+            if (nextClose > maxClose) {
+                maxClose = nextClose;
+            }
             emptyObject.x = nextDate;
             emptyObject.y = nextClose;
+            // console.log("  emptyObject.x:" + emptyObject.x);
+            // console.log("  emptyObject.y:" + emptyObject.y);
             closeValuesArray.push(emptyObject);
+            emptyObject = { "x":null, "y":null }
         }
+
+        // == get min close value
+        var minClose = maxClose;
+        for (i = 0; i < 10; i++) {
+            nextClose = jsonData.results[i].close;
+            if (nextClose < minClose) {
+                minClose = nextClose;
+            }
+        }
+
+        dateMin = parseInt(closeValuesArray[0].x);
+        dateMax = parseInt(closeValuesArray[9].x);
+        console.log("  minClose: " + minClose);
+        console.log("  maxClose: " + maxClose);
+        console.log("  dateMin: " + dateMin);
+        console.log("  dateMax: " + dateMax);
+
         console.dir(closeValuesArray[0]);
-        console.log("closeValuesArray[0]: " + closeValuesArray[0]);
+        console.dir(closeValuesArray);
         $(".contents").html("");
+        $("#visualisation").css("display", "block");
+
+
 
         // ======= ======= ======= TempGraph ======= ======= =======
         // ======= ======= ======= TempGraph ======= ======= =======
@@ -566,13 +591,10 @@ $(document).ready(function(){
                 "year": "2010"
             }];
 
-            check = $(".visualisation").attr("class");
-            console.log("check: " + check);
-
             // == select svg object; set xywh/margins
-            var vis = d3.select(".visualisation"),
-                WIDTH = 1000,
-                HEIGHT = 500,
+            var vis = d3.select("#visualisation"),
+                WIDTH = 720,
+                HEIGHT = 405,
                 MARGINS = {
                     top: 20,
                     right: 20,
@@ -581,8 +603,10 @@ $(document).ready(function(){
                 },
 
                 // == Range: graph_wh inside container, Domain: data max/min values
-                xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([2000, 2010]),
-                yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([134, 215]),
+                // xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([2000, 2010]),
+                // yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([134, 215]),
+                xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([dateMin, dateMax]),
+                yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([minClose, maxClose]),
 
                 // == create axes (d3.svg.axis method via api link)
                 xAxis = d3.svg.axis()
@@ -590,8 +614,6 @@ $(document).ready(function(){
                 yAxis = d3.svg.axis()
                     .scale(yScale)
                     .orient("left");    // /////// /////// ///////
-
-            console.log("vis: " + vis);
 
             // == append axes to container; add styles
             vis.append("svg:g")
@@ -611,24 +633,29 @@ $(document).ready(function(){
             // == add line object; apply scales
             var lineGen = d3.svg.line()
                 .x(function(d) {
-                    return xScale(d.year);
+                    // return xScale(d.year);
+                    return xScale(d.x);
                 })
                 .y(function(d) {
-                    return yScale(d.sale);
+                    // return yScale(d.sale);
+                    return yScale(d.y);
                 })
                 .interpolate("basis");
 
             // == append line path to svg; set params
             vis.append('svg:path')
-                .attr('d', lineGen(data))
+                // .attr('d', lineGen(data))
+                .attr('d', lineGen(closeValuesArray))
                 .attr('stroke', 'green')
                 .attr('stroke-width', 2)
                 .attr('fill', 'none');
-            vis.append('svg:path')
-                .attr('d', lineGen(data2))
-                .attr('stroke', 'blue')
-                .attr('stroke-width', 2)
-                .attr('fill', 'none');
+            // vis.append('svg:path')
+            //     .attr('d', lineGen(data2))
+            //     .attr('stroke', 'blue')
+            //     .attr('stroke-width', 2)
+            //     .attr('fill', 'none');
+
+            // $visualisation.append(vis);
         }
     }
 })
