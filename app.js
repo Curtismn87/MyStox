@@ -12,7 +12,7 @@ app.set("view engine", "hbs");
 
 var stocksController = require("./app/controllers/stocks");
 var ownershipsController = require("./app/controllers/ownerships");
-
+var usersController = require("./app/controllers/users");
 app.get("/", function(req, res){
   console.log("app.get");
   res.sendFile(__dirname + "/app/views/index.html");
