@@ -6,6 +6,11 @@
 */
 
 /* ======= general ======= */
+* {
+    box-sizing: border-box;
+}
+
+
 body {
   font-family:"Ariel", sans-serif;
 }
@@ -49,6 +54,15 @@ body {
 .column-10 { width: 83.33%; }
 .column-11 { width: 91.66%; }
 .column-12 { width: 100%; }
+
+/*======for phones =====*/
+@media(max-width:473px){
+[class *= "column"]{
+  width: 100%;
+}
+
+
+}
 
 /* ======= rows ======= */
 .header_row > .column {
