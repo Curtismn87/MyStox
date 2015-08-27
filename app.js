@@ -5,6 +5,17 @@ var app = express();
 var path = require("path");
 var bodyParser = require("body-parser");
 
+app
+.use(function(req, res, next){
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+    next();
+})
+.options('*', function(req, res, next){
+    res.end();
+})
+;
+
 
 app.use(bodyParser.json());
 app.use("/public", express.static(path.join(__dirname + "/public")));
@@ -22,6 +33,8 @@ app.get("/", function(req, res){
 app.use("/", usersController);
 app.use("/", stocksController);
 app.use("/", ownershipsController);
+
+
 
 app.listen(process.env.PORT || 3000, function(){
   console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
