@@ -128,7 +128,7 @@ $(document).ready(function(){
             symbolString = symbolString + sSymbolArray[i] + ",";
           }
         }
-        this.dataSource = "http://marketdata.websol.barchart.com/getQuote.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=" + symbolString;
+        this.dataSource = "https://marketdata.websol.barchart.com/getQuote.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=" + symbolString;
       }
     };
 
@@ -208,7 +208,7 @@ $(document).ready(function(){
           // this.symbol = sSymbol;
           // this.fCallback = fCallback;   // fCallback = error or process/display json
           console.log("historySymbol: " + historySymbol);
-          this.dataSource = "http://marketdata.websol.barchart.com/getHistory.json?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + historySymbol + "&type=daily&startDate=20140822000000";
+          this.dataSource = "https://marketdata.websol.barchart.com/getHistory.json?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + historySymbol + "&type=daily&startDate=20140822000000";
       }
 
       HistoryData.prototype.getHistory = function() {
