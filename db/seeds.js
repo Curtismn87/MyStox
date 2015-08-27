@@ -2,9 +2,6 @@ var DB = require("../db/connection");
 var User = DB.models.User;
 var Stock = DB.models.Stock;
 var Ownership = DB.models.Ownership;
-var Group = DB.models.Group;
-
-
 
 var users = [
   {name: "Matt Curtis", portfolioSize: 2},
@@ -22,27 +19,19 @@ var stocks = [
   {name:"American Express", ticker: "AXP"}
 ];
 
-var groups = [
-  {name: "Watch", details: "Stocks that you want to follow but are not apart of your portfolio"},
-  {name: "Portfolio", details: "Stocks that you currently own"},
-  {name: "Sold", details: "Stocks that you have traded"},
-  {name: "Index", details: "Stocks in current index"}
-];
-
 var ownerships = [
-  {userId: 1, stockId: 1, groupId: 1},
-  {userId: 1, stockId: 2, groupId: 1},
-  {userId: 2, stockId: 1, groupId: 3},
-  {userId: 2, stockId: 2, groupId: 4},
-  {userId: 3, stockId: 1, groupId: 1},
-  {userId: 3, stockId: 6, groupId: 2},
-  {userId: 4, stockId: 5, groupId: 3},
-  {userId: 4, stockId: 4, groupId: 4},
-  {userId: 4, stockId: 3, groupId: 1}
+  {userId: 1, stockId: 1, group: "portfolio"},
+  {userId: 1, stockId: 2, group: "watch"},
+  {userId: 2, stockId: 1, group: "portfolio"},
+  {userId: 2, stockId: 2, group: "sold"},
+  {userId: 3, stockId: 1, group: "sold"},
+  {userId: 3, stockId: 6, group: "portfolio"},
+  {userId: 4, stockId: 5, group: "portfolio"},
+  {userId: 4, stockId: 4, group: "watch"},
+  {userId: 4, stockId: 3, group: "sold"}
 ];
 
 User.bulkCreate(users).then(function(){
-  Group.bulkCreate(groups);
   Stock.bulkCreate(stocks);
   return Ownership.bulkCreate(ownerships);
 });
