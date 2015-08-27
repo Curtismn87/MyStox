@@ -21,10 +21,6 @@ body {
 }
 
 /* ======= rows & columns ======= */
-.row, .column {
-  box-sizing: border-box;
-}
-
 .row {
   overflow: auto;
   border: 1px solid rebeccapurple;
@@ -55,28 +51,36 @@ body {
 .column-11 { width: 91.66%; }
 .column-12 { width: 100%; }
 
-/*======for phones =====*/
+/*======mobile style =====*/
 @media(max-width:473px){
 [class *= "column"]{
   width: 100%;
 }
+  .header{
+    background: #BB5E05 !important;
+    color:white;
+  }
 
+  li {
+  border:solid;
+  border-color: #066273;
+}
+
+div div {
+  position: absolute;
+}
 
 }
 
+/*============================ end of phone style ====================
 /* ======= rows ======= */
 .header_row > .column {
   height: auto;
 }
 
-.navbar1_row > .column {
-  height: 40px;
-  overflow: visible;
-  /*line-height: 40px;*/
-}
 
 .content_row > .column {
-  height: 300px;
+  height: 500px;
   /*line-height: 300px;*/
 }
 
@@ -85,10 +89,7 @@ body {
   /*line-height: 40px;*/
 }
 
-.footer_row > .column {
-  height: 100px;
-  /*line-height: 100px;*/
-}
+
 
 .navbar1 {
   position: relative;
@@ -142,19 +143,18 @@ th, td {
 }
 
 #main_nav {
-  position: absolute;
+  position: relative;
   top: 0;
   left: 0;
-  height: 70%;
+  height: 100%;
+  float: left;
+  padding:0;
 }
 
 #main_nav ul {
-	list-style: none;
-	position: relative;
-	float: left;
-	margin:0;
-	padding:0;
-  z-index: 3;
+  list-style: none;
+  margin:0;
+  padding:0;
 }
 
 #main_nav ul a {
@@ -195,8 +195,8 @@ th, td {
 }
 
 #main_nav ul ul li {
-	float:none;
-	width:200px;
+	
+	width:100%;
 }
 
 #main_nav ul ul a {
@@ -204,11 +204,15 @@ th, td {
 	padding:10px 15px;
 }
 
-#main_nav ul ul ul {
-	top:0;
-	left:100%;
-}
 
 #main_nav ul li:hover > ul {
 	display:block;
+}
+
+.info {
+  display: none;
+}
+
+.row_footer{
+  height: 20% !important;
 }
