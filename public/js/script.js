@@ -259,7 +259,7 @@ $(document).ready(function(){
         this.stockObjectsArray = [];       // stocks in group (returned from database)
         this.displayObject = displayObject; // store display object for display access
         this.jsonCallback = "???";          // callback function required for jsonp data ???
-        this.dataSource = "http://marketdata.websol.barchart.com/getQuote.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=";
+        this.dataSource = "https://marketdata.websol.barchart.com/getQuote.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=";
         // this.dataSource = "http://dev.markitondemand.com/Api/v2/Quote/jsonp";
         // this.dataSource = "http://dev.markitondemand.com/Api/v2/Quote";
     }
@@ -425,7 +425,7 @@ $(document).ready(function(){
     StockData.prototype.displayStockGraph = function(linkValue) {
         console.log("displayStockGraph");
 
-        this.dataSource = "http://marketdata.websol.barchart.com/getHistory.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + linkValue +
+        this.dataSource = "https://marketdata.websol.barchart.com/getHistory.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + linkValue +
         "&type=daily&startDate=20140822000000";
         this.getAjaxHistoryData();
 
