@@ -87,6 +87,11 @@ body {
   margin: 0 3%;
 }
 
+.shortName {
+    line-height: 10px;
+    font-size: 10px;
+}
+
 .form {
   line-height: 40px;
 }
@@ -100,11 +105,33 @@ th, td {
     padding: 10px;
 }
 
+/* ======= d3 ======= */
+.axis path {
+    fill: none;
+    stroke: #777;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: Lato;
+    font-size: 13px;
+}
+
 /* ======= menus ======= */
+#sub_nav {
+    margin-top: 210px;
+    height: auto;
+}
+
+.subMenu {
+    margin: 5px 2px;
+}
+
 #main_nav {
   position: absolute;
   top: 0;
   left: 0;
+  height: 70%;
 }
 
 #main_nav ul {
