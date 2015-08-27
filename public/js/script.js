@@ -331,7 +331,7 @@ $(document).ready(function(){
             // data: { symbol: symbolString },             // markitondemand API
             url: this.dataSource + ticker,                 // barchart API
             type: 'GET',
-            dataType: 'jsonp',
+            dataType: 'json',
             crossDomain: true,
             error: self.handleError,
             always: self.handleAlways,
