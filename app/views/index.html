@@ -10,10 +10,15 @@
 		<!-- ======= ======= ======= header ======= ======= ======= -->
 		<div class="row header">
 			<div class="column column-2">
-				<a href="/auth/twitter">Log in with Twitter</a>
-				<a href="/signout"> SignOut</a></div>
+				<a href="/auth/twitter">
+					<img id="twitter" src="/public/twitter.png" alt='twitter'>
+				</a>
+				<p class="shortName">login with twitter<p>
+			</div>
 			<div class="column column-8"><h1> MyStox </h1></div>
-			<div class="column column-2">R1_C3</div>
+			<div class="column column-2">
+				<div class="userNameDiv"></div>
+			</div>
 		</div>
 
 		<!-- ======= ======= ======= content ======= ======= ======= -->
@@ -21,7 +26,7 @@
 			<div class="column column-2">
 
 				<!-- ======= ======= ======= menu ======= ======= ======= -->
-				<nav id="main_nav">
+				<nav id="main_nav" class="column column-12">
 				    <ul>
 				      <li class="thisPage menuLink"><a href="#">login</a></li>
 				      <li class="menuLink"><a href="#">stocks</a></li>
@@ -31,13 +36,14 @@
 				      <li class="menuLink"><a href="#">profile</a></li>
 				    </ul>
 			    </nav>
+				<nav id="sub_nav" class="column column-12"></nav>
 
 			</div>
 			<div class="column column-8">
 				<svg id="visualisation"></svg>
 				<div class="contents"></div>
 			</div>
-			<div class="column column-2">R3_C3</div>
+			<div class="column column-2"></div>
 		</div>
 
 		<!-- ======= ======= ======= info ======= ======= ======= -->

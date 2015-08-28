@@ -5,16 +5,19 @@ $(document).ready(function(){
     // == make new StockData instance
     function makeStockDataObject(whichGroup) {
         console.log("makeStockDataObject");
-        var groupDataObject = new StockData(whichGroup);    // constructor
-        groupDataObject.name = whichGroup;                  // store group name on object
-        groupDataObject.displayObject = this;               // store display object
-        console.log("  this.name: " + groupDataObject.name);
-        return groupDataObject;
+        var stockDataObject = new StockData(whichGroup);    // constructor
+        stockDataObject.groupName = whichGroup;             // store group name on object
+        stockDataObject.displayObject = displayObject;      // store displayObject in stockDataObject
+
+        displayObject.stockDataObject = stockDataObject;    // store stockDataObject in displayObject
+        return stockDataObject;
     }
+
 
     // ======= ======= ======= DisplayObject ======= ======= =======
     // ======= ======= ======= DisplayObject ======= ======= =======
     // ======= ======= ======= DisplayObject ======= ======= =======
+
 
     function Display(whichDisplay) {
         console.log('Display');
@@ -28,7 +31,6 @@ $(document).ready(function(){
     // ======= ======= ======= initEventListeners ======= ======= =======
     Display.prototype.initMenuDivs = function() {
         console.log("initMenuDivs");
-        console.log('  this.name: ' + this.name);
 
         var menuLinkArray = [];
         var menuLength = $(".menuLink").length;
@@ -41,117 +43,128 @@ $(document).ready(function(){
     // ======= ======= ======= initEventListeners ======= ======= =======
     Display.prototype.initEventListeners = function() {
         console.log("initEventListeners");
-        console.log('  this.name: ' + this.name);
-        console.log('  this.menuLinkArray: ' + this.menuLinkArray);
 
-        var groupDataObject;
+        var self = this;
 
-        self = this;
-        // == login
+        // == login and profile functions
         $(this.menuLinkArray[0]).on("click", function(){
             displayObject.displayLoginForm();
-        });
-
-        // == stock groups
-        $(this.menuLinkArray[1]).on("click", function(){
-            displayObject.updateMenu("portfolio", displayObject.menuLinkArray[1], displayObject);
-        });
-        $(this.menuLinkArray[2]).on("click", function(){
-            displayObject.updateMenu("watch", displayObject.menuLinkArray[2], displayObject);
-        });
-        $(this.menuLinkArray[3]).on("click", function(){
-            displayObject.updateMenu("sold", displayObject.menuLinkArray[3], displayObject);
-        });
-        $(this.menuLinkArray[4]).on("click", function(){
-            displayObject.updateMenu("index", displayObject.menuLinkArray[4], displayObject);
         });
         $(this.menuLinkArray[5]).on("click", function(){
             displayObject.displayProfile();
         });
+
+        // == stock group functions
+        $(this.menuLinkArray[1]).on("click", function(){
+            displayObject.selectCurrentView("portfolio", displayObject.menuLinkArray[1], displayObject);
+        });
+        $(this.menuLinkArray[2]).on("click", function(){
+            displayObject.selectCurrentView("watch", displayObject.menuLinkArray[2], displayObject);
+        });
+        $(this.menuLinkArray[3]).on("click", function(){
+            displayObject.selectCurrentView("sold", displayObject.menuLinkArray[3], displayObject);
+        });
+        $(this.menuLinkArray[4]).on("click", function(){
+            displayObject.selectCurrentView("index", displayObject.menuLinkArray[4], displayObject);
+        });
     }
 
-    // ======= ======= ======= updateMenu ======= ======= =======
-    Display.prototype.updateMenu = function(whichMenu, whichMenuItem, self) {
-        console.log("updateMenu");
-        console.log('  self.name: ' + self.name);
+    // ======= ======= ======= selectCurrentView ======= ======= =======
+    Display.prototype.selectCurrentView = function(whichMenu, whichMenuItem, self) {
+        console.log("selectCurrentView");
+        console.log("this.currentUser: " + this.currentUser);
 
         // == clear prevous contents
         $(".contents").html("");
         $("#visualisation").css("display", "none");
 
         // == remove thisPage class from all menuLinks
-        if (whichMenu != "login") {
-            for (i = 0; i < self.menuLinkArray.length; i++) {
-                nextMenuItem = self.menuLinkArray[i];
-                nextMenuItem.removeClass("thisPage");
-            }
-
-            // == add thisPage for current page
-            whichMenuItem.addClass("thisPage");
-            for (i = 0; i < self.menuLinkArray.length; i++) {
-                nextMenuItem = self.menuLinkArray[i];
-            }
-        } else {
-            whichMenu = "portfolio";
+        for (i = 0; i < self.menuLinkArray.length; i++) {
+            nextMenuItem = self.menuLinkArray[i];
+            nextMenuItem.removeClass("thisPage");
         }
 
-        groupDataObject = makeStockDataObject(whichMenu);
-        displayObject.stockDataObject = groupDataObject;
-        displayObject.displaySubMenu("portfolio");
-        groupDataObject.getUserGroupData();
+        if (whichMenu == "login") {
+            whichMenu = "portfolio";
+        }
+        whichMenuItem.addClass("thisPage");
+
+        if (this.currentUser) {
+            this.stockDataObject.getUserGroupData();
+        } else {
+            $(".contents").html("");
+            this.$el = $("<div class='message'>Please log in</div>");
+            this.$el.css("margin-top", "100px");
+            $(".contents").append(this.$el);
+        }
 
     }
 
     // ======= ======= ======= loginForm ======= ======= =======
     Display.prototype.displayLoginForm = function() {
         console.log("displayLoginForm");
-        console.log('  this.name: ' + this.name);
+
         var self = this;
 
-        // == init form container div
+        // == clear container elements; init form container div
+        $("#visualisation").css("display", "none");
         $(".contents").html("");
         this.$el = $("<div class='loginForm'></div>");
 
         // == init login form elements
-        var htmlString = $("<div>");
+        var htmlString = $("<div><form action='authenticate' method='post'>");
         htmlString.append("<input id='username' type='text' name='username'> username<br>");
         htmlString.append("<input id='password' type='text' name='password'> password<br>");
         htmlString.append("<input type='button' id='loginBtn' value='enter'><br>");
-        htmlString.append("</div>");
+        htmlString.append("</form></div>");
 
         // == append and position login form elements
         this.$el.html(htmlString);
         $(".contents").append(this.$el);
-        $(".contents").css("margin-top", "100px");
+        $(".loginForm").css("margin-top", "100px");
         this.loginBtn = $("#loginBtn");
+        var userName = $("#username").val();
+        var password = $("#password").val();
 
         // == activate login button
         $(this.loginBtn).on("click", function(){
             console.log("loginBtn");
             displayObject.updateLoginMenuItem();
-            displayObject.loginUser();
-            displayObject.updateMenu("login", displayObject.menuLinkArray[1], displayObject);
+            displayObject.loginUser(userName, password);
+            displayObject.selectCurrentView("login", displayObject.menuLinkArray[1], displayObject);
         })
     }
 
     // ======= ======= ======= loginUser ======= ======= =======
-    Display.prototype.loginUser = function() {
+    Display.prototype.loginUser = function(userName, password) {
         console.log("loginUser");
 
-        userName = $("#username").val();
+        var self = this;
 
         var url = "http://localhost:3000/users/2";
+        // var url = "http://localhost:3000/users/authenticate";
         $.ajax({
             url: url,
             type: "get",
+            // type: "post",
             dataType: "json"
-        }).done(function(){
-            console.log("ajax request success!");
-            this.currentUser = 2;
+        }).done(function(jsonData){
+            console.log("  ajax request success!");
+            self.currentUser = 2;
+            // this.currentUser = jsonData.id;
+            var container = $(".userNameDiv");
+            container.text(jsonData.name);
+
+            // == create data object for user
+            var stockDataObject = makeStockDataObject("portfolio");
+            self.stockDataObject = stockDataObject;
+            displayObject.displaySubMenu("portfolio");
+            stockDataObject.getUserGroupData();
+
         }).fail(function(){
-            console.log("ajax request fails!");
+            console.log("  ajax request fails!");
         }).always(function(){
-            console.log("this always happens regardless of successful ajax request or not");
+            console.log("  ajax request always");
         });
 
     }
@@ -159,14 +172,13 @@ $(document).ready(function(){
     // ======= ======= ======= updateLoginMenuItem ======= ======= =======
     Display.prototype.updateLoginMenuItem = function() {
         console.log("updateLoginMenuItem");
+
         this.menuLinkArray[0].html("<a href='#'>logout</a>");
     }
 
     // ======= ======= ======= displaySubMenu ======= ======= =======
     Display.prototype.displaySubMenu = function(whichGroup) {
         console.log("displaySubMenu");
-        console.log('  this.name: ' + this.name);
-        var self = this;
 
         // == init form container div
         $("#sub_nav").html("");
@@ -174,16 +186,13 @@ $(document).ready(function(){
 
         // == init login form elements
         var htmlString = ("");
-        // htmlString.append("<input class='subMenu' type='text' name='ticker'> ticker<br>");
-        // htmlString.append("<input class='subMenu' type='button' id='stockSearchBtn' value='enter'><br>");
-        htmlString = htmlString + "<p class='subMenu'>add stock</p>";
-        htmlString = htmlString + "<input class='subMenu' id='tickerInput' type='text' name='ticker' size=6 > ticker<br>";
-        htmlString = htmlString + "<input class='subMenu' id='stockSearchBtn' type='button' value='enter'><br>";
+        htmlString = htmlString + "<p class='sub_nav_el'>add stock</p>";
+        htmlString = htmlString + "<p><input class='sub_nav_el' id='tickerInput' type='text' name='ticker' size=6 > ticker <br>";
+        htmlString = htmlString + "<input class='sub_nav_el' id='stockSearchBtn' type='button' value='enter'></p>";
 
         // == append and position login form elements
         this.$el.html(htmlString);
         $("#sub_nav").append(this.$el);
-        $("#sub_nav").css("margin-top", "210px");
         $("#sub_nav").css("background-color", "orange");
         this.stockSearch = $("#stockSearchBtn");
 
@@ -191,29 +200,37 @@ $(document).ready(function(){
         $(this.stockSearch).on("click", function(){
             console.log("stockSearchBtn");
             var ticker = $("#tickerInput").val();
-            console.log("  ticker: " + ticker);
-            stockData = groupDataObject.getAjaxStockData(ticker);
+            stockData = displayObject.stockDataObject.getAjaxStockData(ticker);
         })
     }
 
     // ======= ======= ======= displayGroupData ======= ======= =======
-    Display.prototype.displayGroupData = function() {
+    Display.prototype.displayGroupData = function(newStock) {
         console.log("displayGroupData");
-        var self = this;
+        console.log("displayObject.stockDataObject: " + displayObject.stockDataObject);
+        console.log("displayObject.stockDataObject.groupName: " + displayObject.stockDataObject.groupName);
+        console.log("displayObject.stockDataObject.stockObjectsArray: " + displayObject.stockDataObject.stockObjectsArray);
+        console.log("displayObject.stockDataObject.stockObjectsArray.length: " + displayObject.stockDataObject.stockObjectsArray.length);
+        var stockCount = displayObject.stockDataObject.stockObjectsArray.length;
 
+        var whichButton, whichGroup;
+        var nextStockDataArray, nextSymbol, nextName, nextNetChange, nextLow, nextHigh, nextLastPrice, db_id;
+        var self = this;
+        var nextTickerArray = displayObject.stockDataObject.groupArray;
+        var stockCount = displayObject.stockDataObject.stockObjectsArray.length;
+
+        // == clear previous content
         var container = $(".contents");
         container.empty();
         container.css("margin-top", 0);
         this.$el = $("<div class='stock'></div>");
 
-        var displayObject = this.stockDataObject;
-        var nextTickerArray = this.stockDataObject.groupArray;
+        // == build table html
+        var htmlString = "<table class='column column-12'><tr><th>Name</th><th>Symbol</th><th>Low</th>" + "<th>High</th><th>LastPrice</th><th>change</th><th>action</th></tr>";
 
-        var stockCount = displayObject.stockObjectsArray.length;
-        var htmlString = "<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th><th>change</th><th>delete</th></tr>";
-
-        for (var i = 0; i < displayObject.stockObjectsArray.length; i++) {
-            nextStockDataArray = displayObject.stockObjectsArray[i];
+        // == process jsonData
+        for (var i = 0; i < stockCount; i++) {
+            nextStockDataArray = displayObject.stockDataObject.stockObjectsArray[i];
             nextSymbol = nextStockDataArray[0];
             nextName = nextStockDataArray[1];
             nextNetChange = nextStockDataArray[2];
@@ -221,16 +238,31 @@ $(document).ready(function(){
             nextHigh = nextStockDataArray[4];
             nextLastPrice = nextStockDataArray[5];
 
-            var db_id = nextTickerArray[i][0];
+            if (nextTickerArray.length > 0) {
+                db_id = nextTickerArray[i][0];
+            } else {
+                db_id = 0;
+            }
 
-            deleteBtn = "<input class='deleteStock' id='" + db_id + "' type='button' value='delete'>";
+            // == enable new stock processing
+            if (newStock) {
+                whichAction = "<input class='stockAction' id='" + db_id + "' type='button' value='add'>" +
+                    "<select class='stockAction' id='whichGroup'><option value='portfolio'>portfolio</option>" +
+                    "<option value='watchlist'>watchlist</option>" +
+                    "<option value='sold'>sold</option>" +
+                    "<option value='index'>index</option></select>";
+
+            // == enable delete
+            } else {
+                whichAction = "<input class='stockAction' id='" + db_id + "' type='button' value='delete'>";
+            }
             htmlString = htmlString + "<tr><td><h3>";
 
             // == limit size of display name
             if (nextName.length > 12) {
                 var end = nextName.indexOf(" ");
                 var shortName = nextName.substring(0, end);
-                htmlString = htmlString + "<a href='#' id='stock" + i + "' value='" + nextSymbol + "' >" + shortName +
+                htmlString = htmlString + "<a class='tightName' href='#' id='stock" + i + "' value='" + nextSymbol + "' >" + shortName +
                 "</h3></a><br>" + "<p class='shortName'>" + nextName + "</p></td>";
             } else {
                 htmlString = htmlString + "<a href='#' id='stock" + i + "' value='" + nextSymbol + "' >" + nextName + "</h3></a></td>";
@@ -240,33 +272,43 @@ $(document).ready(function(){
             "<td>" + nextHigh + "</td>" +
             "<td>" + nextLastPrice + "</td>" +
             "<td>" + nextNetChange + "</td>" +
-            "<td>" + deleteBtn + "</td></tr>";
+            "<td>" + whichAction + "</td></tr>";
         }
 
         htmlString = htmlString + "</table>";
         this.$el.html(htmlString);
-
         $(".contents").append(this.$el);
 
-        for (var i = 0; i < displayObject.stockObjectsArray.length; i++) {
+        // == activate stock action options
+        for (var i = 0; i < stockCount; i++) {
             var $stockLink = $("#stock" + i);
             $stockLink.on("click", function(){
                 var linkValue = $(this).attr('value');
                 self.stockDataObject.displayStockGraph(linkValue);
             })
 
-            // == activate delete button
             var db_id = nextTickerArray[i][0];
-            var $deleteStockBtn = $("#" + db_id);
-            $deleteStockBtn.on("click", function(){
-                console.log("deleteStockBtn");
-                var element_id = $(this).attr('id');
-                groupDataObject.portfolioToSold(element_id);
-            })
+            var $whichButton = $("#" + db_id);
+            var $whichGroup = $("#whichGroup");
+
+            if (newStock) {
+                $whichButton.on("click", function(){
+                    console.log("addStockBtn");
+                    var element_id = $(this).attr('id');
+                    self.stockDataObject.addToGroup($whichGroup.val());
+                })
+            } else {
+                $whichButton.on("click", function(){
+                    console.log("deleteStockBtn");
+                    var element_id = $(this).attr('id');
+                    self.stockDataObject.portfolioToSold(element_id);
+                })
+            }
         }
     }
 
     // ======= ======= ======= initialize interface ======= ======= =======
+
     displayObject.initMenuDivs();
     displayObject.initEventListeners();
 
@@ -280,9 +322,9 @@ $(document).ready(function(){
 
     function StockData(whichGroup, groupArray, displayObject) {
         console.log('StockData');
-        this.name = whichGroup;             // portfolio, watchlist, sold, indexes
+        this.groupName = whichGroup;        // portfolio, watchlist, sold, indexes
         this.groupArray = groupArray;       // stocks in group (returned from database)
-        this.stockObjectsArray = [];       // stocks in group (returned from database)
+        this.stockObjectsArray = [];        // stocks in group (returned from database)
         this.displayObject = displayObject; // store display object for display access
         this.jsonCallback = "???";          // callback function required for jsonp data ???
         this.dataSource = "//marketdata.websol.barchart.com/getQuote.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbols=";
@@ -290,47 +332,17 @@ $(document).ready(function(){
         // this.dataSource = "http://dev.markitondemand.com/Api/v2/Quote";
     }
 
-    // ======= ======= ======= portfolioToSold ======= ======= =======
-    StockData.prototype.portfolioToSold = function(stockId) {
-        console.log('portfolioToSold');
-        console.log('  stockId: ' + stockId);
-
-        var url = "/users/2/stock/" + stockId;
-        // var url = "http://localhost:3000/users/2/stock/" + stockId;
-        $.ajax({
-            url: url,
-            type: "delete",
-            dataType: "json"
-        }).done(function(){
-            console.log("ajax request success!");
-        }).fail(function(){
-            console.log("ajax request fails!");
-        }).always(function(){
-            console.log("this always happens regardless of successful ajax request or not");
-        });
-
-    }
-
     // ======= ======= ======= getUserGroupData ======= ======= =======
     StockData.prototype.getUserGroupData = function(ticker) {
         console.log('getUserGroupData');
-        console.log('  this.name: ' + this.name);
 
         var self = this;
-        // whichMethod, whichUrl, whichParams
+        var currentUser = displayObject.currentUser;
 
-        // == create url for local server API
-        if (this.name = "portfolio") {
-            // urlString = "/users/:id/stocks";
-        } else if (this.name = "watch") {
-            urlString = "/users/:id/watch/";
-        } else if (this.name = "sold") {
-            urlString = "/users/:id/sold/";
-        } else if (this.name = "index") {
-            urlString = "/users/:id/index/";
-        }
-
-        var url = "http://localhost:3000/users/2/ownership";
+        // == get user's stocks from ownership join table
+        // var url = "http://localhost:3000/users/" + currentUser + "/ownership/" + this.groupName;
+        var url = "http://localhost:3000/users/2/ownership/";
+        // var url = "http://localhost:3000/users/" + currentUser + "/ownership/";
         $.ajax({
             url: url,
             type: "get",
@@ -341,10 +353,11 @@ $(document).ready(function(){
             extractDatabaseTickers(jsonData);
         }).fail(function(){
             console.log("  ajax request fails!");
+            self.handleError;
         }).always(function(){
-            console.log("  this always happens regardless of successful ajax request or not");
+            console.log("  ajax request always");
+            self.handleAlways;
         });
-
 
         tickerArray = [];
         function extractDatabaseTickers(jsonData) {
@@ -356,9 +369,6 @@ $(document).ready(function(){
                 tickerArray.push(nextTickerArray);
             }
 
-            // == temp stock list for development
-            // tickerArray = ["AAPL", "GOOGL", "HD"];
-            // tickerArray = ["APPL"];
             self.groupArray = tickerArray;
             symbolString = self.makeGroupString();
             groupData = self.getAjaxGroupData(symbolString);
@@ -368,7 +378,7 @@ $(document).ready(function(){
     // ======= ======= ======= makeGroupString ======= ======= =======
     StockData.prototype.makeGroupString = function() {
         console.log("makeGroupString");
-        console.log("  this.name: " + this.name);
+
         var symbolString = '';
         for (var i = 0; i < this.groupArray.length; i++) {
             if (i == this.groupArray.length - 1) {
@@ -383,7 +393,7 @@ $(document).ready(function(){
     // ======= ======= ======= getAjaxStockData ======= ======= =======
     StockData.prototype.getAjaxStockData = function(ticker) {
         console.log("getAjaxStockData");
-        console.log("  this.name: " + this.name);
+
         self = this;
         // if (this.ajaxRequest) {
         //     console.log("request aborted");
@@ -398,7 +408,7 @@ $(document).ready(function(){
             crossDomain: true,
             error: self.handleError,
             always: self.handleAlways,
-            success: self.displayStockData,
+            success: self.processStockData,
             context: self
         });
     }
@@ -406,7 +416,7 @@ $(document).ready(function(){
     // ======= ======= ======= getAjaxGroupData ======= ======= =======
     StockData.prototype.getAjaxGroupData = function(symbolString) {
         console.log("getAjaxGroupData");
-        console.log("  this.name: " + this.name);
+
         self = this;
         if (this.ajaxRequest) {
             console.log("request aborted");
@@ -421,32 +431,32 @@ $(document).ready(function(){
             crossDomain: true,
             error: self.handleError,
             always: self.handleAlways,
-            success: self.extractGroupData,
+            success: self.processGroupData,
             context: self
         });
     }
 
-    // ======= ======= ======= displayStockData ======= ======= =======
-    StockData.prototype.displayStockData = function(jsonStock) {
-        console.log("displayStockData");
-        console.log("  this.name: " + this.name);
+    // ======= ======= ======= processStockData ======= ======= =======
+    StockData.prototype.processStockData = function(jsonStock) {
+        console.log("processStockData");
+
         console.dir(jsonStock);
         if (jsonStock.results) {
             nextResult = jsonStock.results[0];
             tempDataArray = [nextResult.symbol, nextResult.name, nextResult.netChange, nextResult.low, nextResult.high, nextResult.lastPrice];
             this.stockObjectsArray = [];
             this.stockObjectsArray.push(tempDataArray);
-            displayObject.displayGroupData();
+            displayObject.displayGroupData(nextResult.symbol);
         } else {
             console.log("  no results in this response");
             this.handleError(jsonStock);
         }
     }
 
-    // ======= ======= ======= extractGroupData ======= ======= =======
-    StockData.prototype.extractGroupData = function(jsonStock) {
-        console.log("extractGroupData");
-        console.log("  this.name: " + this.name);
+    // ======= ======= ======= processGroupData ======= ======= =======
+    StockData.prototype.processGroupData = function(jsonStock) {
+        console.log("processGroupData");
+
         console.dir(jsonStock);
         if (jsonStock.results) {
             var stockCount = jsonStock.results.length;
@@ -458,11 +468,54 @@ $(document).ready(function(){
                 tempDataArray = [nextResult.symbol, nextResult.name, nextResult.netChange, nextResult.low, nextResult.high, nextResult.lastPrice];
                 this.stockObjectsArray.push(tempDataArray);
             }
+            console.log("this.stockObjectsArray.length: " + this.stockObjectsArray.length);
             displayObject.displayGroupData();
         } else {
             console.log("  no results in this response");
             this.handleError(jsonStock);
         }
+    }
+
+    // ======= ======= ======= addToGroup ======= ======= =======
+    StockData.prototype.addToGroup = function(whichGroup) {
+        console.log('addToGroup');
+        console.log('  whichGroup: ' + whichGroup);
+
+        var currentUser = displayObject.currentUser;
+        var url = "http://localhost:3000/users/" + currentUser + "/stocks/" + whichGroup;
+        $.ajax({
+            url: url,
+            type: "post",
+            dataType: "json"
+        }).done(function(){
+            console.log("  ajax request success!");
+        }).fail(function(){
+            console.log("  ajax request fails!");
+        }).always(function(){
+            console.log("  ajax request always");
+        });
+
+    }
+
+    // ======= ======= ======= portfolioToSold ======= ======= =======
+    StockData.prototype.portfolioToSold = function(stockId) {
+        console.log('portfolioToSold');
+        console.log('  stockId: ' + stockId);
+
+        var currentUser = displayObject.currentUser;
+        var url = "http://localhost:3000/users/" + currentUser + "/stocks/" + stockId;
+        $.ajax({
+            url: url,
+            type: "delete",
+            dataType: "json"
+        }).done(function(){
+            console.log("  ajax request success!");
+        }).fail(function(){
+            console.log("  ajax request fails!");
+        }).always(function(){
+            console.log("  ajax request always");
+        });
+
     }
 
     // ======= ======= ======= handleError ======= ======= =======
@@ -482,20 +535,26 @@ $(document).ready(function(){
         $(".contents").css("margin-top", "100px");
     }
 
+
+    // ======= ======= ======= stock histories ======= ======= =======
+    // ======= ======= ======= stock histories ======= ======= =======
+    // ======= ======= ======= stock histories ======= ======= =======
+
+
     // ======= ======= ======= displayStockGraph ======= ======= =======
-    StockData.prototype.displayStockGraph = function(linkValue) {
+    StockData.prototype.displayStockGraph = function(ticker) {
         console.log("displayStockGraph");
 
-        this.dataSource = "//marketdata.websol.barchart.com/getHistory.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + linkValue +
+        this.dataSource = "//marketdata.websol.barchart.com/getHistory.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + ticker +
         "&type=daily&startDate=20140822000000";
-        this.getAjaxHistoryData();
+        this.getAjaxHistoryData(ticker);
 
     }
 
     // ======= ======= ======= getAjaxHistoryData ======= ======= =======
-    StockData.prototype.getAjaxHistoryData = function() {
+    StockData.prototype.getAjaxHistoryData = function(ticker) {
         console.log("getAjaxHistoryData");
-        console.log("  this.name: " + this.name);
+
         self = this;
         // if (this.ajaxRequest) {
         //     console.log("request aborted");
@@ -511,6 +570,8 @@ $(document).ready(function(){
             success: self.extractGraphData,
             context: self
         });
+
+        this.getAjaxStockData(ticker);
     }
 
     // ======= ======= ======= extractGraphData ======= ======= =======
@@ -520,9 +581,10 @@ $(document).ready(function(){
 
         var maxClose = 0;
         var closeValuesArray = [];
+        var tempDataCount = 60;                                 // for development
         var emptyObject = { "x":null, "y":null }
-        // for (i = 0; i < jsonData.results.length; i++) {
-        for (i = 0; i < 10; i++) {
+        // for (i = 0; i < jsonData.results.length; i++) {      // for prod
+        for (i = 0; i < tempDataCount; i++) {
             nextDate = Date.parse(jsonData.results[i].tradingDay);
             nextClose = jsonData.results[i].close;
             if (nextClose > maxClose) {
@@ -530,8 +592,6 @@ $(document).ready(function(){
             }
             emptyObject.x = nextDate;
             emptyObject.y = nextClose;
-            // console.log("  emptyObject.x:" + emptyObject.x);
-            // console.log("  emptyObject.y:" + emptyObject.y);
             closeValuesArray.push(emptyObject);
             emptyObject = { "x":null, "y":null }
         }
@@ -539,7 +599,7 @@ $(document).ready(function(){
         // == get min close value
         var minClose = maxClose;
         // for (i = 0; i < jsonData.results.length; i++) {
-        for (i = 0; i < 10; i++) {
+        for (i = 0; i < tempDataCount; i++) {
             nextClose = jsonData.results[i].close;
             if (nextClose < minClose) {
                 minClose = nextClose;
@@ -548,30 +608,25 @@ $(document).ready(function(){
 
         dateMin = parseInt(closeValuesArray[0].x);
         dateMax = parseInt(closeValuesArray[9].x);
-        console.log("  minClose: " + minClose);
-        console.log("  maxClose: " + maxClose);
-        console.log("  dateMin: " + dateMin);
-        console.log("  dateMax: " + dateMax);
 
-        console.dir(closeValuesArray[0]);
-        console.dir(closeValuesArray);
         $(".contents").html("");
         $("#visualisation").css("display", "block");
 
 
+        // ======= ======= ======= history chart ======= ======= =======
+        // ======= ======= ======= history chart ======= ======= =======
+        // ======= ======= ======= history chart ======= ======= =======
 
-        // ======= ======= ======= TempGraph ======= ======= =======
-        // ======= ======= ======= TempGraph ======= ======= =======
-        // ======= ======= ======= TempGraph ======= ======= =======
 
         InitChart();
 
+        // ======= ======= ======= InitChart ======= ======= =======
         function InitChart() {
             console.log("InitChart");
 
             // == clear prevous contents
             // $(".contents").html("");
-            // $("#visualisation").css("display", "none");
+            $("#visualisation").empty();
 
             // == select svg object; set xywh/margins
             var vis = d3.select("#visualisation"),
@@ -585,17 +640,17 @@ $(document).ready(function(){
                 },
 
                 // == Range: graph_wh inside container, Domain: data max/min values
-                // xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([2000, 2010]),
-                // yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([134, 215]),
-                xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([dateMin, dateMax]),
-                yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([minClose, maxClose]),
+                xScale = d3.scale.linear().range([50, WIDTH - 20]).domain([dateMin, dateMax]),
+                yScale = d3.scale.linear().range([HEIGHT - 20, 20]).domain([minClose, maxClose]),
+                // xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([dateMin, dateMax]),
+                // yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([minClose, maxClose]),
 
                 // == create axes (d3.svg.axis method via api link)
                 xAxis = d3.svg.axis()
                     .scale(xScale),
                 yAxis = d3.svg.axis()
                     .scale(yScale)
-                    .orient("left");    // /////// /////// ///////
+                    .orient("left");
 
             // == append axes to container; add styles
             vis.append("svg:g")

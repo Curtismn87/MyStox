@@ -10,14 +10,13 @@
     box-sizing: border-box;
 }
 
-
 body {
-  font-family:"Ariel", sans-serif;
+    font-family:"Ariel", sans-serif;
 }
 
 .logo {
-  width: 100%;
-  height: auto;
+    width: 100%;
+    height: auto;
 }
 
 /* ======= rows & columns ======= */
@@ -29,7 +28,7 @@ body {
   position: relative;
   float: left;
   text-align: center;
-  border: 1px solid gray;
+  /*border: 1px solid gray;*/
 }
 
 .column:after {
@@ -50,33 +49,38 @@ body {
 .column-11 { width: 91.66%; }
 .column-12 { width: 100%; }
 
-/*======mobile style =====*/
-@media(max-width:473px){
-[class *= "column"]{
-  width: 100%;
-}
-  .header{
-    background: #BB5E05 !important;
-    color:white;
-  }
-
-  li {
-  border:solid;
-  border-color: #066273;
+/* ====== mobile style ====== */
+@media(max-width:720px){
+    table, th, td {
+        font-size: 12px;
+        padding: 5px;
+    }
 }
 
-div div {
-  position: absolute;
+/* ====== mobile style ====== */
+@media(max-width:470px){
+    [class *= "column"]{
+        width: 100%;
+    }
+    .header {
+        background: #BB5E05;
+        color:white;
+    }
+    li {
+        border:solid;
+        border-color: #066273;
+    }
+    div div {
+        position: absolute;
+    }
 }
 
-}
+/*============================ end of mobile style ====================
 
-/*============================ end of phone style ====================
 /* ======= rows ======= */
 .header_row > .column {
   height: auto;
 }
-
 
 .content_row > .column {
   height: 500px;
@@ -88,39 +92,74 @@ div div {
   /*line-height: 40px;*/
 }
 
+.row_footer{
+  height: 20%;
+  padding: 0.5em;
+}
 
+.info {
+  display: none;
+}
 
-.navbar1 {
-  position: relative;
-  z-index: 2;
+/* ======= tables ======= */
+table, th, td {
+    border: 1px solid red;
+    border-collapse: collapse;
+}
+
+table {
+    width: 100%;
+    font-size: 1em;
+    /*border-bottom: 2px solid purple;*/
+    box-shadow: 5px 5px 5px #ddd;
+}
+
+th, td {
+    padding: 8px;
 }
 
 /* ======= misc ======= */
-.gutter {
-  background-color: peachpuff;
-  margin: 0 3%;
+.contents {
+    border-top: 3px solid red;
+    border-left: 3px solid red;
+    height: 500px;
+}
+
+h3 a {
+    padding: 0.2em;
+    margin: 0.5em;
+    text-decoration:none;
+}
+
+h3 .tightName {
+    padding: 0;
+    margin: 0;
 }
 
 .shortName {
     line-height: 10px;
     font-size: 10px;
+    margin: 0;
 }
 
 .form {
   line-height: 40px;
 }
 
-table {
-    width: 100%;
+.userNameDiv {
+    margin-top: 20px;
+    color: blue;
 }
 
-table, th, td {
-    border: 1px solid red;
-    border-collapse: collapse;
+#twitter {
+    width: 50px;
+    height: 40px;
+    margin-top: 10px;
 }
 
-th, td {
-    padding: 10px;
+.gutter {
+  background-color: peachpuff;
+  margin: 0 3%;
 }
 
 /* ======= d3 ======= */
@@ -143,24 +182,28 @@ svg {
 }
 
 /* ======= menus ======= */
-#sub_nav {
-    margin-top: 210px;
-    height: auto;
-}
-
-.subMenu {
-    margin: 5px 2px;
-}
-
 #main_nav {
   position: relative;
   top: 0;
   left: 0;
-  height: 100%;
+  height: 40%;
   float: left;
   padding:0;
 }
 
+#sub_nav {
+    position: relative;
+    top: 0;
+    left: 0;
+    vertical-align: text-top;
+    height: 60%;
+}
+
+.sub_nav_el {
+    margin: 5px 10px;
+}
+
+/* ======= hover fx ======= */
 #main_nav ul {
   list-style: none;
   margin:0;
@@ -179,12 +222,12 @@ svg {
 }
 
 #main_nav ul li {
-	position:relative;
-  display:block;
-	float:left;
-  width: 100%;
-	margin:0;
-	padding:0;
+    position:relative;
+    display:block;
+    float:left;
+    width: 100%;
+    margin:0;
+    padding:0;
 }
 
 #main_nav ul li.thisPage {
@@ -205,7 +248,7 @@ svg {
 }
 
 #main_nav ul ul li {
-	
+
 	width:100%;
 }
 
@@ -218,12 +261,3 @@ svg {
 #main_nav ul li:hover > ul {
 	display:block;
 }
-
-.info {
-  display: none;
-}
-
-.row_footer{
-  height: 20% !important;
-}
-
