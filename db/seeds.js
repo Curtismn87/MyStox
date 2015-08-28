@@ -4,10 +4,10 @@ var Stock = DB.models.Stock;
 var Ownership = DB.models.Ownership;
 
 var users = [
-  {name: "Matt Curtis", portfolioSize: 2},
-  {name: "Tom Beach", portfolioSize: 4},
-  {name: "Kevin Cole", portfolioSize: 3},
-  {name: "Phil Engle", portfolioSize: 2}
+  {name: "Matt Curtis", portfolioSize: 2, userName: "mattCurtis"},
+  {name: "Tom Beach", portfolioSize: 4, userName: "tomBeach"},
+  {name: "Kevin Cole", portfolioSize: 3, userName: "kevinCole"},
+  {name: "Phil Engle", portfolioSize: 2, userName: "philEngle"}
 ];
 
 var stocks = [
