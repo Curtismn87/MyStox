@@ -7,8 +7,9 @@ $(document).ready(function(){
         console.log("makeStockDataObject");
         var stockDataObject = new StockData(whichGroup);    // constructor
         stockDataObject.groupName = whichGroup;             // store group name on object
-        stockDataObject.displayObject = this;               // store displayObject in stockDataObject
-        this.stockDataObject = stockDataObject;             // store stockDataObject in displayObject
+        stockDataObject.displayObject = displayObject;      // store displayObject in stockDataObject
+
+        displayObject.stockDataObject = stockDataObject;    // store stockDataObject in displayObject
         return stockDataObject;
     }
 
@@ -71,6 +72,7 @@ $(document).ready(function(){
     // ======= ======= ======= selectCurrentView ======= ======= =======
     Display.prototype.selectCurrentView = function(whichMenu, whichMenuItem, self) {
         console.log("selectCurrentView");
+        console.log("this.currentUser: " + this.currentUser);
 
         // == clear prevous contents
         $(".contents").html("");
@@ -87,11 +89,14 @@ $(document).ready(function(){
         }
         whichMenuItem.addClass("thisPage");
 
-        // == create data object for user
-        var stockDataObject = makeStockDataObject(whichMenu);
-        this.stockDataObject = stockDataObject;
-        displayObject.displaySubMenu("portfolio");
-        stockDataObject.getUserGroupData();
+        if (this.currentUser) {
+            this.stockDataObject.getUserGroupData();
+        } else {
+            $(".contents").html("");
+            this.$el = $("<div class='message'>Please log in</div>");
+            this.$el.css("margin-top", "100px");
+            $(".contents").append(this.$el);
+        }
 
     }
 
@@ -107,43 +112,55 @@ $(document).ready(function(){
         this.$el = $("<div class='loginForm'></div>");
 
         // == init login form elements
-        var htmlString = $("<div>");
+        var htmlString = $("<div><form action='authenticate' method='post'>");
         htmlString.append("<input id='username' type='text' name='username'> username<br>");
         htmlString.append("<input id='password' type='text' name='password'> password<br>");
         htmlString.append("<input type='button' id='loginBtn' value='enter'><br>");
-        htmlString.append("</div>");
+        htmlString.append("</form></div>");
 
         // == append and position login form elements
         this.$el.html(htmlString);
         $(".contents").append(this.$el);
         $(".loginForm").css("margin-top", "100px");
         this.loginBtn = $("#loginBtn");
+        var userName = $("#username").val();
+        var password = $("#password").val();
 
         // == activate login button
         $(this.loginBtn).on("click", function(){
             console.log("loginBtn");
             displayObject.updateLoginMenuItem();
-            displayObject.loginUser();
+            displayObject.loginUser(userName, password);
             displayObject.selectCurrentView("login", displayObject.menuLinkArray[1], displayObject);
         })
     }
 
     // ======= ======= ======= loginUser ======= ======= =======
-    Display.prototype.loginUser = function() {
+    Display.prototype.loginUser = function(userName, password) {
         console.log("loginUser");
 
-        userName = $("#username").val();
+        var self = this;
 
         var url = "http://localhost:3000/users/2";
+        // var url = "http://localhost:3000/users/authenticate";
         $.ajax({
             url: url,
             type: "get",
+            // type: "post",
             dataType: "json"
         }).done(function(jsonData){
             console.log("  ajax request success!");
-            this.currentUser = 2;
+            self.currentUser = 2;
+            // this.currentUser = jsonData.id;
             var container = $(".userNameDiv");
             container.text(jsonData.name);
+
+            // == create data object for user
+            var stockDataObject = makeStockDataObject("portfolio");
+            self.stockDataObject = stockDataObject;
+            displayObject.displaySubMenu("portfolio");
+            stockDataObject.getUserGroupData();
+
         }).fail(function(){
             console.log("  ajax request fails!");
         }).always(function(){
@@ -190,13 +207,17 @@ $(document).ready(function(){
     // ======= ======= ======= displayGroupData ======= ======= =======
     Display.prototype.displayGroupData = function(newStock) {
         console.log("displayGroupData");
+        console.log("displayObject.stockDataObject: " + displayObject.stockDataObject);
+        console.log("displayObject.stockDataObject.groupName: " + displayObject.stockDataObject.groupName);
+        console.log("displayObject.stockDataObject.stockObjectsArray: " + displayObject.stockDataObject.stockObjectsArray);
+        console.log("displayObject.stockDataObject.stockObjectsArray.length: " + displayObject.stockDataObject.stockObjectsArray.length);
+        var stockCount = displayObject.stockDataObject.stockObjectsArray.length;
 
         var whichButton, whichGroup;
         var nextStockDataArray, nextSymbol, nextName, nextNetChange, nextLow, nextHigh, nextLastPrice, db_id;
         var self = this;
-        var displayObject = this.stockDataObject;
-        var nextTickerArray = this.stockDataObject.groupArray;
-        var stockCount = displayObject.stockObjectsArray.length;
+        var nextTickerArray = displayObject.stockDataObject.groupArray;
+        var stockCount = displayObject.stockDataObject.stockObjectsArray.length;
 
         // == clear previous content
         var container = $(".contents");
@@ -208,15 +229,20 @@ $(document).ready(function(){
         var htmlString = "<table class='column column-12'><tr><th>Name</th><th>Symbol</th><th>Low</th>" + "<th>High</th><th>LastPrice</th><th>change</th><th>action</th></tr>";
 
         // == process jsonData
-        for (var i = 0; i < displayObject.stockObjectsArray.length; i++) {
-            nextStockDataArray = displayObject.stockObjectsArray[i];
+        for (var i = 0; i < stockCount; i++) {
+            nextStockDataArray = displayObject.stockDataObject.stockObjectsArray[i];
             nextSymbol = nextStockDataArray[0];
             nextName = nextStockDataArray[1];
             nextNetChange = nextStockDataArray[2];
             nextLow = nextStockDataArray[3];
             nextHigh = nextStockDataArray[4];
             nextLastPrice = nextStockDataArray[5];
-            db_id = nextTickerArray[i][0];
+
+            if (nextTickerArray.length > 0) {
+                db_id = nextTickerArray[i][0];
+            } else {
+                db_id = 0;
+            }
 
             // == enable new stock processing
             if (newStock) {
@@ -254,7 +280,7 @@ $(document).ready(function(){
         $(".contents").append(this.$el);
 
         // == activate stock action options
-        for (var i = 0; i < displayObject.stockObjectsArray.length; i++) {
+        for (var i = 0; i < stockCount; i++) {
             var $stockLink = $("#stock" + i);
             $stockLink.on("click", function(){
                 var linkValue = $(this).attr('value');
@@ -269,7 +295,7 @@ $(document).ready(function(){
                 $whichButton.on("click", function(){
                     console.log("addStockBtn");
                     var element_id = $(this).attr('id');
-                    self.stockDataObject.addToGroup(element_id, $whichGroup.val());
+                    self.stockDataObject.addToGroup($whichGroup.val());
                 })
             } else {
                 $whichButton.on("click", function(){
@@ -306,36 +332,17 @@ $(document).ready(function(){
         // this.dataSource = "http://dev.markitondemand.com/Api/v2/Quote";
     }
 
-    // ======= ======= ======= portfolioToSold ======= ======= =======
-    StockData.prototype.portfolioToSold = function(stockId) {
-        console.log('portfolioToSold');
-        console.log('  stockId: ' + stockId);
-
-        var url = "http://localhost:3000/users/2/stocks/" + stockId;
-        $.ajax({
-            url: url,
-            type: "delete",
-            dataType: "json"
-        }).done(function(){
-            console.log("  ajax request success!");
-        }).fail(function(){
-            console.log("  ajax request fails!");
-        }).always(function(){
-            console.log("  ajax request always");
-        });
-
-    }
-
     // ======= ======= ======= getUserGroupData ======= ======= =======
     StockData.prototype.getUserGroupData = function(ticker) {
         console.log('getUserGroupData');
 
         var self = this;
-        // whichMethod, whichUrl, whichParams
+        var currentUser = displayObject.currentUser;
 
         // == get user's stocks from ownership join table
-        var url = "http://localhost:3000/users/2/ownership/" + this.groupName;
-        // var url = "http://localhost:3000/users/2/ownership/";
+        // var url = "http://localhost:3000/users/" + currentUser + "/ownership/" + this.groupName;
+        var url = "http://localhost:3000/users/2/ownership/";
+        // var url = "http://localhost:3000/users/" + currentUser + "/ownership/";
         $.ajax({
             url: url,
             type: "get",
@@ -362,9 +369,6 @@ $(document).ready(function(){
                 tickerArray.push(nextTickerArray);
             }
 
-            // == temp stock list for development
-            // tickerArray = ["AAPL", "GOOGL", "HD"];
-            // tickerArray = ["APPL"];
             self.groupArray = tickerArray;
             symbolString = self.makeGroupString();
             groupData = self.getAjaxGroupData(symbolString);
@@ -464,11 +468,54 @@ $(document).ready(function(){
                 tempDataArray = [nextResult.symbol, nextResult.name, nextResult.netChange, nextResult.low, nextResult.high, nextResult.lastPrice];
                 this.stockObjectsArray.push(tempDataArray);
             }
+            console.log("this.stockObjectsArray.length: " + this.stockObjectsArray.length);
             displayObject.displayGroupData();
         } else {
             console.log("  no results in this response");
             this.handleError(jsonStock);
         }
+    }
+
+    // ======= ======= ======= addToGroup ======= ======= =======
+    StockData.prototype.addToGroup = function(whichGroup) {
+        console.log('addToGroup');
+        console.log('  whichGroup: ' + whichGroup);
+
+        var currentUser = displayObject.currentUser;
+        var url = "http://localhost:3000/users/" + currentUser + "/stocks/" + whichGroup;
+        $.ajax({
+            url: url,
+            type: "post",
+            dataType: "json"
+        }).done(function(){
+            console.log("  ajax request success!");
+        }).fail(function(){
+            console.log("  ajax request fails!");
+        }).always(function(){
+            console.log("  ajax request always");
+        });
+
+    }
+
+    // ======= ======= ======= portfolioToSold ======= ======= =======
+    StockData.prototype.portfolioToSold = function(stockId) {
+        console.log('portfolioToSold');
+        console.log('  stockId: ' + stockId);
+
+        var currentUser = displayObject.currentUser;
+        var url = "http://localhost:3000/users/" + currentUser + "/stocks/" + stockId;
+        $.ajax({
+            url: url,
+            type: "delete",
+            dataType: "json"
+        }).done(function(){
+            console.log("  ajax request success!");
+        }).fail(function(){
+            console.log("  ajax request fails!");
+        }).always(function(){
+            console.log("  ajax request always");
+        });
+
     }
 
     // ======= ======= ======= handleError ======= ======= =======
@@ -487,6 +534,12 @@ $(document).ready(function(){
         $(".contents").append(this.$el);
         $(".contents").css("margin-top", "100px");
     }
+
+
+    // ======= ======= ======= stock histories ======= ======= =======
+    // ======= ======= ======= stock histories ======= ======= =======
+    // ======= ======= ======= stock histories ======= ======= =======
+
 
     // ======= ======= ======= displayStockGraph ======= ======= =======
     StockData.prototype.displayStockGraph = function(ticker) {
@@ -528,9 +581,9 @@ $(document).ready(function(){
 
         var maxClose = 0;
         var closeValuesArray = [];
-        var tempDataCount = 60;
+        var tempDataCount = 60;                                 // for development
         var emptyObject = { "x":null, "y":null }
-        // for (i = 0; i < jsonData.results.length; i++) {
+        // for (i = 0; i < jsonData.results.length; i++) {      // for prod
         for (i = 0; i < tempDataCount; i++) {
             nextDate = Date.parse(jsonData.results[i].tradingDay);
             nextClose = jsonData.results[i].close;
@@ -560,9 +613,9 @@ $(document).ready(function(){
         $("#visualisation").css("display", "block");
 
 
-        // ======= ======= ======= TempGraph ======= ======= =======
-        // ======= ======= ======= TempGraph ======= ======= =======
-        // ======= ======= ======= TempGraph ======= ======= =======
+        // ======= ======= ======= history chart ======= ======= =======
+        // ======= ======= ======= history chart ======= ======= =======
+        // ======= ======= ======= history chart ======= ======= =======
 
 
         InitChart();

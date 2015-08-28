@@ -10,11 +10,31 @@ function error(response, message){
     response.json({error: message});
 }
 
+// == authenticate user
+router.post("/users/authenticate/", function(req, res){
+    // User.find({where: {name: req.params.username, password: req.params.password}}).then(function(user){
+    User.find({where: {name: req.params.username}}).then(function(user){
+        if(!user) return error(res, "not found");
+        res.json(user);
+        console.dir(res.json(user));
+    });
+});
+
 // == CREATE user
 router.post("/users", function(req, res){
     User.create(req.body).then(function(user){
-        res.json(user);
+        // res.json(user);
     });
+});
+
+// == CREATE stock
+router.post("users/:id/stocks/:whichGroup", function(req, res){
+    Stock.create(req.body).then(function(stock){
+        // res.json(stock);
+    });
+    // Ownership.create(req.body).then(function(ownership){
+    //     // res.json(stock);
+    // });
 });
 
 // == READ all users
@@ -38,15 +58,15 @@ router.get("/users/:id", function(req, res){
 router.patch("/users/:id", function(req, res){
     User.findById(req.params.id).then(function(user){
         if(!user) return error(res, "not found");
-            user.updateAttributes(req.body).then(function(updatedUser){
+        user.updateAttributes(req.body).then(function(updatedUser){
         res.json(updatedUser);
         });
     });
 });
 
 // == READ all user stocks
-// router.get("/users/:id/ownership/", function(req, res){
-router.get("/users/:id/ownership/:group", function(req, res){
+router.get("/users/:id/ownership/", function(req, res){
+// router.get("/users/:id/ownership/:group", function(req, res){
     console.log("GET: /users/:id/ownership");
     console.log("req.params: " + req.params);
     User.findById(req.params.id).then(function(user){
