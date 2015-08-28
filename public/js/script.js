@@ -167,15 +167,13 @@ $(document).ready(function(){
 
         // == init login form elements
         var htmlString = ("");
-        htmlString = htmlString + "<div class='subMenuContainer'>";
-        htmlString = htmlString + "<p class='subHeader'>add stock</p>";
-        htmlString = htmlString + "<p><input class='subMenu' id='tickerInput' type='text' name='ticker' size=6 > ticker <br>";
-        htmlString = htmlString + "<input class='subMenu' id='stockSearchBtn' type='button' value='enter'></p></div>";
+        htmlString = htmlString + "<p class='sub_nav_el'>add stock</p>";
+        htmlString = htmlString + "<p><input class='sub_nav_el' id='tickerInput' type='text' name='ticker' size=6 > ticker <br>";
+        htmlString = htmlString + "<input class='sub_nav_el' id='stockSearchBtn' type='button' value='enter'></p>";
 
         // == append and position login form elements
         this.$el.html(htmlString);
         $("#sub_nav").append(this.$el);
-        $("#sub_nav").css("margin-top", "210px");
         $("#sub_nav").css("background-color", "orange");
         this.stockSearch = $("#stockSearchBtn");
 
@@ -202,7 +200,7 @@ $(document).ready(function(){
         var nextTickerArray = this.stockDataObject.groupArray;
 
         var stockCount = displayObject.stockObjectsArray.length;
-        var htmlString = "<table><tr><th>Name</th><th>Symbol</th><th>Low</th><th>High</th><th>LastPrice</th><th>change</th><th>delete</th></tr>";
+        var htmlString = "<table class='column column-12'><tr><th>Name</th><th>Symbol</th><th>Low</th>" + "<th>High</th><th>LastPrice</th><th>change</th><th>delete</th></tr>";
 
         for (var i = 0; i < displayObject.stockObjectsArray.length; i++) {
             nextStockDataArray = displayObject.stockObjectsArray[i];
@@ -222,7 +220,7 @@ $(document).ready(function(){
             if (nextName.length > 12) {
                 var end = nextName.indexOf(" ");
                 var shortName = nextName.substring(0, end);
-                htmlString = htmlString + "<a href='#' id='stock" + i + "' value='" + nextSymbol + "' >" + shortName +
+                htmlString = htmlString + "<a class='tightName' href='#' id='stock" + i + "' value='" + nextSymbol + "' >" + shortName +
                 "</h3></a><br>" + "<p class='shortName'>" + nextName + "</p></td>";
             } else {
                 htmlString = htmlString + "<a href='#' id='stock" + i + "' value='" + nextSymbol + "' >" + nextName + "</h3></a></td>";
@@ -464,17 +462,17 @@ $(document).ready(function(){
     }
 
     // ======= ======= ======= displayStockGraph ======= ======= =======
-    StockData.prototype.displayStockGraph = function(linkValue) {
+    StockData.prototype.displayStockGraph = function(ticker) {
         console.log("displayStockGraph");
 
-        this.dataSource = "//marketdata.websol.barchart.com/getHistory.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + linkValue +
+        this.dataSource = "//marketdata.websol.barchart.com/getHistory.jsonp?key=5c566d2e239b7f0d6f2c73f38a767326&symbol=" + ticker +
         "&type=daily&startDate=20140822000000";
-        this.getAjaxHistoryData();
+        this.getAjaxHistoryData(ticker);
 
     }
 
     // ======= ======= ======= getAjaxHistoryData ======= ======= =======
-    StockData.prototype.getAjaxHistoryData = function() {
+    StockData.prototype.getAjaxHistoryData = function(ticker) {
         console.log("getAjaxHistoryData");
 
         self = this;
@@ -492,6 +490,8 @@ $(document).ready(function(){
             success: self.extractGraphData,
             context: self
         });
+
+        this.getAjaxStockData(ticker);
     }
 
     // ======= ======= ======= extractGraphData ======= ======= =======
@@ -501,9 +501,10 @@ $(document).ready(function(){
 
         var maxClose = 0;
         var closeValuesArray = [];
+        var tempDataCount = 60;
         var emptyObject = { "x":null, "y":null }
         // for (i = 0; i < jsonData.results.length; i++) {
-        for (i = 0; i < 10; i++) {
+        for (i = 0; i < tempDataCount; i++) {
             nextDate = Date.parse(jsonData.results[i].tradingDay);
             nextClose = jsonData.results[i].close;
             if (nextClose > maxClose) {
@@ -518,7 +519,7 @@ $(document).ready(function(){
         // == get min close value
         var minClose = maxClose;
         // for (i = 0; i < jsonData.results.length; i++) {
-        for (i = 0; i < 10; i++) {
+        for (i = 0; i < tempDataCount; i++) {
             nextClose = jsonData.results[i].close;
             if (nextClose < minClose) {
                 minClose = nextClose;
@@ -545,7 +546,7 @@ $(document).ready(function(){
 
             // == clear prevous contents
             // $(".contents").html("");
-            // $("#visualisation").css("display", "none");
+            $("#visualisation").empty();
 
             // == select svg object; set xywh/margins
             var vis = d3.select("#visualisation"),
@@ -559,8 +560,10 @@ $(document).ready(function(){
                 },
 
                 // == Range: graph_wh inside container, Domain: data max/min values
-                xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([dateMin, dateMax]),
-                yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([minClose, maxClose]),
+                xScale = d3.scale.linear().range([50, WIDTH - 20]).domain([dateMin, dateMax]),
+                yScale = d3.scale.linear().range([HEIGHT - 20, 20]).domain([minClose, maxClose]),
+                // xScale = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([dateMin, dateMax]),
+                // yScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([minClose, maxClose]),
 
                 // == create axes (d3.svg.axis method via api link)
                 xAxis = d3.svg.axis()
