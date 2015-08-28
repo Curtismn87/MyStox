@@ -45,24 +45,28 @@ router.patch("/users/:id", function(req, res){
 });
 
 // == READ all user stocks
-router.get("/users/:id/ownership/", function(req, res){
-// router.get("/users/:id/ownership/:groupName", function(req, res){
+// router.get("/users/:id/ownership/", function(req, res){
+router.get("/users/:id/ownership/:group", function(req, res){
     console.log("GET: /users/:id/ownership");
     console.log("req.params: " + req.params);
     User.findById(req.params.id).then(function(user){
         if(!user) return error(res, "not found");
-        // {where: {user_id: req.params.user_id, group: req.params.groupName}}
-        user.getStocks().then(function(stocks){
+            user.getStocks().then(function(stocks){
+            // user.getStocks({where: {user_id: req.query.user_id, group: req.query.group}}).then(function(stocks){
+            // user.getStocks({where: {user_id: req.params.user_id, group: req.params.group}}).then(function(stocks){
+            // stocks.getStocks({where: {user_id: req.params.user_id, group: req.params.group}}).then(function(stocks){
+            // ownership.getStocks({where: {user_id: req.params.user_id, group: req.params.group}}).then(function(stocks){
             res.send(stocks);
         });
     });
 });
 
 // == DELETE stock from group
-router.delete("/users/:user_id/stocks/:stock_id", function(req, res){
-  Ownership.destroy({where: {user_id: req.params.user_id, stock_id: req.params.stock_id}}).then(function(){
-    res.json({success: true});
-  });
+router.delete("/users/:user_id/stocks/:stock_id", function(req, res) {
+    console.log("DELETE: /users/:user_id/stocks/:stock_id");
+        // Ownership.destroy({where: {user_id: req.params.user_id, stock_id: req.params.stock_id}}).then(function(){
+        // res.json({success: true});
+    // });
 });
 
 module.exports = router;

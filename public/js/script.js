@@ -7,7 +7,8 @@ $(document).ready(function(){
         console.log("makeStockDataObject");
         var stockDataObject = new StockData(whichGroup);    // constructor
         stockDataObject.groupName = whichGroup;             // store group name on object
-        stockDataObject.displayObject = this;               // store display object
+        stockDataObject.displayObject = this;               // store displayObject in stockDataObject
+        this.stockDataObject = stockDataObject;             // store stockDataObject in displayObject
         return stockDataObject;
     }
 
@@ -88,7 +89,7 @@ $(document).ready(function(){
 
         // == create data object for user
         var stockDataObject = makeStockDataObject(whichMenu);
-        displayObject.stockDataObject = stockDataObject;
+        this.stockDataObject = stockDataObject;
         displayObject.displaySubMenu("portfolio");
         stockDataObject.getUserGroupData();
 
@@ -100,7 +101,8 @@ $(document).ready(function(){
 
         var self = this;
 
-        // == init form container div
+        // == clear container elements; init form container div
+        $("#visualisation").css("display", "none");
         $(".contents").html("");
         this.$el = $("<div class='loginForm'></div>");
 
@@ -181,27 +183,31 @@ $(document).ready(function(){
         $(this.stockSearch).on("click", function(){
             console.log("stockSearchBtn");
             var ticker = $("#tickerInput").val();
-            stockData = stockDataObject.getAjaxStockData(ticker);
+            stockData = displayObject.stockDataObject.getAjaxStockData(ticker);
         })
     }
 
     // ======= ======= ======= displayGroupData ======= ======= =======
-    Display.prototype.displayGroupData = function() {
+    Display.prototype.displayGroupData = function(newStock) {
         console.log("displayGroupData");
 
+        var whichButton, whichGroup;
+        var nextStockDataArray, nextSymbol, nextName, nextNetChange, nextLow, nextHigh, nextLastPrice, db_id;
         var self = this;
+        var displayObject = this.stockDataObject;
+        var nextTickerArray = this.stockDataObject.groupArray;
+        var stockCount = displayObject.stockObjectsArray.length;
 
+        // == clear previous content
         var container = $(".contents");
         container.empty();
         container.css("margin-top", 0);
         this.$el = $("<div class='stock'></div>");
 
-        var displayObject = this.stockDataObject;
-        var nextTickerArray = this.stockDataObject.groupArray;
+        // == build table html
+        var htmlString = "<table class='column column-12'><tr><th>Name</th><th>Symbol</th><th>Low</th>" + "<th>High</th><th>LastPrice</th><th>change</th><th>action</th></tr>";
 
-        var stockCount = displayObject.stockObjectsArray.length;
-        var htmlString = "<table class='column column-12'><tr><th>Name</th><th>Symbol</th><th>Low</th>" + "<th>High</th><th>LastPrice</th><th>change</th><th>delete</th></tr>";
-
+        // == process jsonData
         for (var i = 0; i < displayObject.stockObjectsArray.length; i++) {
             nextStockDataArray = displayObject.stockObjectsArray[i];
             nextSymbol = nextStockDataArray[0];
@@ -210,10 +216,20 @@ $(document).ready(function(){
             nextLow = nextStockDataArray[3];
             nextHigh = nextStockDataArray[4];
             nextLastPrice = nextStockDataArray[5];
+            db_id = nextTickerArray[i][0];
 
-            var db_id = nextTickerArray[i][0];
+            // == enable new stock processing
+            if (newStock) {
+                whichAction = "<input class='stockAction' id='" + db_id + "' type='button' value='add'>" +
+                    "<select class='stockAction' id='whichGroup'><option value='portfolio'>portfolio</option>" +
+                    "<option value='watchlist'>watchlist</option>" +
+                    "<option value='sold'>sold</option>" +
+                    "<option value='index'>index</option></select>";
 
-            deleteBtn = "<input class='deleteStock' id='" + db_id + "' type='button' value='delete'>";
+            // == enable delete
+            } else {
+                whichAction = "<input class='stockAction' id='" + db_id + "' type='button' value='delete'>";
+            }
             htmlString = htmlString + "<tr><td><h3>";
 
             // == limit size of display name
@@ -230,14 +246,14 @@ $(document).ready(function(){
             "<td>" + nextHigh + "</td>" +
             "<td>" + nextLastPrice + "</td>" +
             "<td>" + nextNetChange + "</td>" +
-            "<td>" + deleteBtn + "</td></tr>";
+            "<td>" + whichAction + "</td></tr>";
         }
 
         htmlString = htmlString + "</table>";
         this.$el.html(htmlString);
-
         $(".contents").append(this.$el);
 
+        // == activate stock action options
         for (var i = 0; i < displayObject.stockObjectsArray.length; i++) {
             var $stockLink = $("#stock" + i);
             $stockLink.on("click", function(){
@@ -245,14 +261,23 @@ $(document).ready(function(){
                 self.stockDataObject.displayStockGraph(linkValue);
             })
 
-            // == activate delete button
             var db_id = nextTickerArray[i][0];
-            var $deleteStockBtn = $("#" + db_id);
-            $deleteStockBtn.on("click", function(){
-                console.log("deleteStockBtn");
-                var element_id = $(this).attr('id');
-                self.stockDataObject.portfolioToSold(element_id);
-            })
+            var $whichButton = $("#" + db_id);
+            var $whichGroup = $("#whichGroup");
+
+            if (newStock) {
+                $whichButton.on("click", function(){
+                    console.log("addStockBtn");
+                    var element_id = $(this).attr('id');
+                    self.stockDataObject.addToGroup(element_id, $whichGroup.val());
+                })
+            } else {
+                $whichButton.on("click", function(){
+                    console.log("deleteStockBtn");
+                    var element_id = $(this).attr('id');
+                    self.stockDataObject.portfolioToSold(element_id);
+                })
+            }
         }
     }
 
@@ -292,11 +317,11 @@ $(document).ready(function(){
             type: "delete",
             dataType: "json"
         }).done(function(){
-            console.log("ajax request success!");
+            console.log("  ajax request success!");
         }).fail(function(){
-            console.log("ajax request fails!");
+            console.log("  ajax request fails!");
         }).always(function(){
-            console.log("this always happens regardless of successful ajax request or not");
+            console.log("  ajax request always");
         });
 
     }
@@ -309,8 +334,8 @@ $(document).ready(function(){
         // whichMethod, whichUrl, whichParams
 
         // == get user's stocks from ownership join table
-        // var url = "http://localhost:3000/users/2/ownership/" + this.groupName;
-        var url = "http://localhost:3000/users/2/ownership/";
+        var url = "http://localhost:3000/users/2/ownership/" + this.groupName;
+        // var url = "http://localhost:3000/users/2/ownership/";
         $.ajax({
             url: url,
             type: "get",
@@ -321,8 +346,10 @@ $(document).ready(function(){
             extractDatabaseTickers(jsonData);
         }).fail(function(){
             console.log("  ajax request fails!");
+            self.handleError;
         }).always(function(){
             console.log("  ajax request always");
+            self.handleAlways;
         });
 
         tickerArray = [];
@@ -377,7 +404,7 @@ $(document).ready(function(){
             crossDomain: true,
             error: self.handleError,
             always: self.handleAlways,
-            success: self.displayStockData,
+            success: self.processStockData,
             context: self
         });
     }
@@ -400,14 +427,14 @@ $(document).ready(function(){
             crossDomain: true,
             error: self.handleError,
             always: self.handleAlways,
-            success: self.extractGroupData,
+            success: self.processGroupData,
             context: self
         });
     }
 
-    // ======= ======= ======= displayStockData ======= ======= =======
-    StockData.prototype.displayStockData = function(jsonStock) {
-        console.log("displayStockData");
+    // ======= ======= ======= processStockData ======= ======= =======
+    StockData.prototype.processStockData = function(jsonStock) {
+        console.log("processStockData");
 
         console.dir(jsonStock);
         if (jsonStock.results) {
@@ -415,16 +442,16 @@ $(document).ready(function(){
             tempDataArray = [nextResult.symbol, nextResult.name, nextResult.netChange, nextResult.low, nextResult.high, nextResult.lastPrice];
             this.stockObjectsArray = [];
             this.stockObjectsArray.push(tempDataArray);
-            displayObject.displayGroupData();
+            displayObject.displayGroupData(nextResult.symbol);
         } else {
             console.log("  no results in this response");
             this.handleError(jsonStock);
         }
     }
 
-    // ======= ======= ======= extractGroupData ======= ======= =======
-    StockData.prototype.extractGroupData = function(jsonStock) {
-        console.log("extractGroupData");
+    // ======= ======= ======= processGroupData ======= ======= =======
+    StockData.prototype.processGroupData = function(jsonStock) {
+        console.log("processGroupData");
 
         console.dir(jsonStock);
         if (jsonStock.results) {
