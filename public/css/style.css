@@ -17,11 +17,13 @@ body {
 .logo {
     width: 100%;
     height: auto;
+
 }
 
 /* ======= rows & columns ======= */
 .row {
   overflow: auto;
+
 }
 
 .column {
@@ -49,22 +51,14 @@ body {
 .column-11 { width: 91.66%; }
 .column-12 { width: 100%; }
 
-/* ====== mobile style ====== */
-@media(max-width:720px){
-    table, th, td {
-        font-size: 12px;
-        padding: 5px;
-    }
-}
 
 /* ====== mobile style ====== */
-@media(max-width:470px){
+@media(max-width:600px){
     [class *= "column"]{
         width: 100%;
     }
-    .header {
-        background: #BB5E05;
-        color:white;
+    
+
     }
     li {
         border:solid;
@@ -73,6 +67,11 @@ body {
     div div {
         position: absolute;
     }
+
+    .content_row > .column {
+  height: 200px;
+  /*line-height: 300px;*/
+}
 }
 
 /*============================ end of mobile style ====================
@@ -261,3 +260,7 @@ svg {
 #main_nav ul li:hover > ul {
 	display:block;
 }
+
+.header {
+        background:linear-gradient(to bottom,#225300,#357F00);
+        color:white;
